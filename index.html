@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livraria Abandonada - Jogo de Terror</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            background: #000;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        /* Tela Inicial */
+        #start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #1a0a00 0%, #000000 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* Adicionando estilos para tornar o texto visível na tela inicial */
+        #start-screen h1 {
+            font-size: 3rem;
+            color: #8b4513;
+            text-shadow: 0 0 20px #ff8800, 0 0 40px #ff4400;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        #start-screen p {
+            font-size: 1.2rem;
+            color: #ddd;
+            max-width: 600px;
+            text-align: center;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+            padding: 0 20px;
+        }
+
+        #start-btn {
+            padding: 20px 50px;
+            font-size: 1.5rem;
+            background: #4a2511;
+            color: #fff;
+            border: 3px solid #8b4513;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #start-btn:hover {
+            background: #8b4513;
+            border-color: #ff8800;
+            box-shadow: 0 0 20px #ff8800;
+            transform: scale(1.05);
+        }
+
+        #register-btn {
+            position: absolute;
+            top: 50%;
+            right: 50px;
+            transform: translateY(-50%);
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: #1a1a1a;
+            color: #888;
+            border: 2px solid #444;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        #register-btn:hover {
+            background: #2a2a2a;
+            color: #fff;
+            border-color: #666;
+        }
+
+        #scare-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        #scare-screen canvas {
+            image-rendering: pixelated;
+        }
+
+        #register-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #0a0a1a 0%, #000000 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1500;
+        }
+
+        #register-screen h2 {
+            font-size: 2rem;
+            color: #8b4513;
+            margin-bottom: 2rem;
+        }
+
+        #register-form {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border: 2px solid #8b4513;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 300px;
+        }
+
+        #register-form input {
+            padding: 10px;
+            font-size: 1rem;
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #444;
+            font-family: 'Courier New', monospace;
+        }
+
+        #register-form button {
+            padding: 12px;
+            font-size: 1.1rem;
+            background: #4a2511;
+            color: #fff;
+            border: 2px solid #8b4513;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+
+        #register-form button:hover {
+            background: #8b4513;
+        }
+
+        #back-to-menu {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: transparent;
+            color: #888;
+            border: 1px solid #444;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+
+        #back-to-menu:hover {
+            color: #fff;
+            border-color: #666;
+        }
+
+        /* Game Over Screen */
+        #game-over-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #game-over-screen h1 {
+            font-size: 4rem;
+            color: #ff0000;
+            text-shadow: 0 0 30px #ff0000;
+            margin-bottom: 2rem;
+        }
+
+        #game-over-screen p {
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        #restart-btn {
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            background: #8b0000;
+            color: #fff;
+            border: 2px solid #ff0000;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Vitória Screen */
+        #victory-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #001a00 0%, #000000 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #victory-screen h1 {
+            font-size: 3rem;
+            color: #00ff00;
+            text-shadow: 0 0 20px #00ff00;
+            margin-bottom: 2rem;
+        }
+
+        #victory-screen p {
+            color: #fff;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            max-width: 600px;
+        }
+
+        /* Canvas do Jogo */
+        #game-canvas {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            image-rendering: pixelated;
+        }
+
+        /* HUD */
+        #hud {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 1rem;
+            z-index: 100;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        #hud div {
+            margin-bottom: 10px;
+        }
+
+        /* Inventário */
+        #inventory {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border: 2px solid #8b4513;
+            color: #fff;
+            min-width: 200px;
+            z-index: 100;
+        }
+
+        #inventory h3 {
+            margin-bottom: 10px;
+            color: #8b4513;
+        }
+
+        #inventory-items {
+            list-style: none;
+        }
+
+        #inventory-items li {
+            padding: 5px;
+            margin: 5px 0;
+            background: rgba(139, 69, 19, 0.3);
+            border-left: 3px solid #8b4513;
+        }
+
+        /* Mensagens */
+        #message {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 20px 40px;
+            border: 2px solid #8b4513;
+            display: none;
+            max-width: 600px;
+            text-align: center;
+            z-index: 200;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* Lanterna */
+        #flashlight-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, transparent 0%, transparent 150px, rgba(0, 0, 0, 0.95) 300px);
+            pointer-events: none;
+            z-index: 50;
+            display: none;
+        }
+
+        #flashlight-battery {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            color: #ffff00;
+            font-size: 1rem;
+            z-index: 100;
+            text-shadow: 2px 2px 4px #000;
+            display: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela Inicial -->
+    <div id="start-screen">
+        <h1>📚 LIVRARIA ABANDONADA 📚</h1>
+        <p>Você acordou em uma livraria abandonada e misteriosa. Estantes de livros formam um labirinto complexo. Encontre baús secretos, colete códigos e descubra a saída... se conseguir sobreviver.</p>
+        <button id="start-btn">INICIAR JOGO</button>
+        <button id="register-btn">Cadastrar</button>
+    </div>
+
+    <!-- Tela de Game Over -->
+    <div id="game-over-screen">
+        <h1>VOCÊ MORREU</h1>
+        <p>A entidade te encontrou...</p>
+        <button id="restart-btn">TENTAR NOVAMENTE</button>
+    </div>
+
+    <!-- Tela de Vitória -->
+    <div id="victory-screen">
+        <h1>VOCÊ ESCAPOU!</h1>
+        <p>Parabéns! Você coletou todos os códigos e descobriu o segredo final. Você conseguiu escapar da Livraria Abandonada!</p>
+        <button id="restart-btn-victory">JOGAR NOVAMENTE</button>
+    </div>
+
+    <!-- Tela de susto -->
+    <div id="scare-screen">
+        <canvas id="scare-canvas" width="400" height="400"></canvas>
+    </div>
+
+    <!-- Tela de cadastro -->
+    <div id="register-screen">
+        <h2>CADASTRO</h2>
+        <form id="register-form">
+            <input type="text" placeholder="Nome" required>
+            <input type="email" placeholder="Email" required>
+            <input type="password" placeholder="Senha" required>
+            <button type="submit">CADASTRAR</button>
+        </form>
+        <button id="back-to-menu">Voltar ao Menu</button>
+    </div>
+
+    <!-- Canvas do Jogo -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD -->
+    <div id="hud">
+        <div>Setor: <span id="current-level">1</span></div>
+        <!-- Atualizado número total de setores para 8 -->
+        <div>Setores Explorados: <span id="houses-explored">0</span>/8</div>
+        <!-- Atualizado número total de códigos para 6 -->
+        <div>Códigos: <span id="codes-collected">0</span>/6</div>
+        <div>Baús Abertos: <span id="chests-opened">0</span></div>
+    </div>
+
+    <!-- Inventário -->
+    <div id="inventory">
+        <h3>INVENTÁRIO</h3>
+        <ul id="inventory-items">
+            <li>Vazio</li>
+        </ul>
+    </div>
+
+    <!-- Mensagem -->
+    <div id="message"></div>
+
+    <!-- Overlay da Lanterna -->
+    <div id="flashlight-overlay"></div>
+    <div id="flashlight-battery">🔦 Bateria: <span id="battery-level">100</span>%</div>
+
+    <script>
+        // ==================== CONFIGURAÇÃO DO JOGO ====================
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const game = {
+            state: 'start',
+            currentLevel: 1,
+            housesExplored: new Set([1]),
+            codesCollected: [],
+            chestsOpened: 0,
+            inventory: [],
+            flashlightOn: false,
+            flashlightBattery: 100,
+            entityActive: false,
+            secretDoorsUnlocked: [],
+            deathLocation: null // { x, y, level, items }
+        };
+
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            size: 16,
+            speed: 4.5,
+            angle: 0,
+            direction: 'down' // para animação do sprite
+        };
+
+        const entity = {
+            x: 0,
+            y: 0,
+            size: 20,
+            speed: 1.8,
+            active: false
+        };
+
+        // Controles
+        const keys = {};
+        window.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            
+            if (e.key.toLowerCase() === 'f' && game.currentLevel >= 2) {
+                if (game.flashlightBattery > 0) {
+                    game.flashlightOn = !game.flashlightOn;
+                    updateFlashlight();
+                } else {
+                    showMessage("A bateria da lanterna está vazia!");
+                }
+            }
+            
+            if (e.key.toLowerCase() === 'e') {
+                checkInteraction();
+            }
+        });
+        window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+
+        // ==================== FUNÇÕES DE DESENHO PIXEL ART ====================
+        
+        function drawPlayer(x, y) {
+            const pixelSize = 2;
+            
+            // Corpo (camisa azul)
+            ctx.fillStyle = '#3366cc';
+            ctx.fillRect(x - 4 * pixelSize, y - 2 * pixelSize, 8 * pixelSize, 6 * pixelSize);
+            
+            // Cabeça (pele)
+            ctx.fillStyle = '#ffcc99';
+            ctx.fillRect(x - 3 * pixelSize, y - 6 * pixelSize, 6 * pixelSize, 4 * pixelSize);
+            
+            // Cabelo (marrom)
+            ctx.fillStyle = '#4a2511';
+            ctx.fillRect(x - 3 * pixelSize, y - 8 * pixelSize, 6 * pixelSize, 3 * pixelSize);
+            
+            // Boné (azul escuro)
+            ctx.fillStyle = '#1a3a5a';
+            ctx.fillRect(x - 4 * pixelSize, y - 9 * pixelSize, 8 * pixelSize, 2 * pixelSize);
+            
+            // Olhos
+            ctx.fillStyle = '#000';
+            ctx.fillRect(x - 2 * pixelSize, y - 5 * pixelSize, pixelSize, pixelSize);
+            ctx.fillRect(x + 1 * pixelSize, y - 5 * pixelSize, pixelSize, pixelSize);
+            
+            // Pernas (calça azul escura)
+            ctx.fillStyle = '#1a1a4a';
+            ctx.fillRect(x - 3 * pixelSize, y + 4 * pixelSize, 2 * pixelSize, 4 * pixelSize);
+            ctx.fillRect(x + 1 * pixelSize, y + 4 * pixelSize, 2 * pixelSize, 4 * pixelSize);
+            
+            // Sapatos (preto)
+            ctx.fillStyle = '#000';
+            ctx.fillRect(x - 3 * pixelSize, y + 8 * pixelSize, 2 * pixelSize, pixelSize);
+            ctx.fillRect(x + 1 * pixelSize, y + 8 * pixelSize, 2 * pixelSize, pixelSize);
+        }
+
+        function drawEntity(x, y) {
+            const level = game.currentLevel;
+            const pixelSize = 2;
+            
+            // Variante 1: Fantasma Branco (Níveis 2-3)
+            if (level <= 3) {
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#ffffff';
+                ctx.fillRect(x - 5 * pixelSize, y - 4 * pixelSize, 10 * pixelSize, 12 * pixelSize);
+                ctx.fillRect(x - 4 * pixelSize, y - 8 * pixelSize, 8 * pixelSize, 5 * pixelSize);
+                
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(x - 3 * pixelSize, y - 6 * pixelSize, 2 * pixelSize, 3 * pixelSize);
+                ctx.fillRect(x + 1 * pixelSize, y - 6 * pixelSize, 2 * pixelSize, 3 * pixelSize);
+                ctx.fillRect(x - 2 * pixelSize, y - 2 * pixelSize, 4 * pixelSize, pixelSize);
+                ctx.fillRect(x - 3 * pixelSize, y - 1 * pixelSize, pixelSize, pixelSize);
+                ctx.fillRect(x + 2 * pixelSize, y - 1 * pixelSize, pixelSize, pixelSize);
+            }
+            // Variante 2: Sombra Vermelha (Níveis 4-5)
+            else if (level <= 5) {
+                ctx.fillStyle = '#ff0000';
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#ff0000';
+                ctx.fillRect(x - 6 * pixelSize, y - 5 * pixelSize, 12 * pixelSize, 14 * pixelSize);
+                ctx.fillRect(x - 5 * pixelSize, y - 10 * pixelSize, 10 * pixelSize, 6 * pixelSize);
+                
+                // Olhos brilhantes
+                ctx.fillStyle = '#ffff00';
+                ctx.fillRect(x - 3 * pixelSize, y - 7 * pixelSize, 2 * pixelSize, 4 * pixelSize);
+                ctx.fillRect(x + 1 * pixelSize, y - 7 * pixelSize, 2 * pixelSize, 4 * pixelSize);
+                
+                // Boca distorcida
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(x - 3 * pixelSize, y - 1 * pixelSize, 6 * pixelSize, 2 * pixelSize);
+                ctx.fillRect(x - 4 * pixelSize, y + 1 * pixelSize, pixelSize, pixelSize);
+                ctx.fillRect(x + 3 * pixelSize, y + 1 * pixelSize, pixelSize, pixelSize);
+            }
+            // Variante 3: Criatura Púrpura (Níveis 6-7)
+            else if (level <= 7) {
+                ctx.fillStyle = '#8b00ff';
+                ctx.shadowBlur = 25;
+                ctx.shadowColor = '#8b00ff';
+                ctx.fillRect(x - 7 * pixelSize, y - 6 * pixelSize, 14 * pixelSize, 16 * pixelSize);
+                ctx.fillRect(x - 6 * pixelSize, y - 12 * pixelSize, 12 * pixelSize, 7 * pixelSize);
+                
+                // Múltiplos olhos
+                ctx.fillStyle = '#00ff00';
+                ctx.fillRect(x - 4 * pixelSize, y - 9 * pixelSize, 2 * pixelSize, 2 * pixelSize);
+                ctx.fillRect(x + 2 * pixelSize, y - 9 * pixelSize, 2 * pixelSize, 2 * pixelSize);
+                ctx.fillRect(x - 1 * pixelSize, y - 7 * pixelSize, 2 * pixelSize, 2 * pixelSize);
+                
+                // Tentáculos
+                ctx.fillStyle = '#6b00bf';
+                ctx.fillRect(x - 8 * pixelSize, y + 4 * pixelSize, 2 * pixelSize, 6 * pixelSize);
+                ctx.fillRect(x + 6 * pixelSize, y + 4 * pixelSize, 2 * pixelSize, 6 * pixelSize);
+            }
+            // Variante 4: Abominação Final (Nível 8)
+            else {
+                ctx.fillStyle = '#000000';
+                ctx.shadowBlur = 30;
+                ctx.shadowColor = '#ff0000';
+                ctx.fillRect(x - 8 * pixelSize, y - 7 * pixelSize, 16 * pixelSize, 18 * pixelSize);
+                ctx.fillRect(x - 7 * pixelSize, y - 14 * pixelSize, 14 * pixelSize, 8 * pixelSize);
+                
+                // Olhos vermelhos brilhantes
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(x - 5 * pixelSize, y - 10 * pixelSize, 3 * pixelSize, 5 * pixelSize);
+                ctx.fillRect(x + 2 * pixelSize, y - 10 * pixelSize, 3 * pixelSize, 5 * pixelSize);
+                
+                // Boca com dentes
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(x - 4 * pixelSize, y - 2 * pixelSize, 8 * pixelSize, 3 * pixelSize);
+                ctx.fillStyle = '#ffffff';
+                for (let i = -3; i < 4; i++) {
+                    ctx.fillRect(x + i * pixelSize, y - 1 * pixelSize, pixelSize, 2 * pixelSize);
+                }
+                
+                // Garras
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(x - 10 * pixelSize, y + 2 * pixelSize, 3 * pixelSize, 8 * pixelSize);
+                ctx.fillRect(x + 7 * pixelSize, y + 2 * pixelSize, 3 * pixelSize, 8 * pixelSize);
+            }
+            
+            ctx.shadowBlur = 0;
+        }
+
+        function drawBookshelf(x, y, width, height) {
+            const pixelSize = 2;
+            
+            // Estrutura da estante (marrom escuro)
+            ctx.fillStyle = '#4a2511';
+            ctx.fillRect(x, y, width, height);
+            
+            // Prateleiras
+            ctx.fillStyle = '#2a1508';
+            for (let i = 1; i < 4; i++) {
+                ctx.fillRect(x, y + (height / 4) * i, width, pixelSize);
+            }
+            
+            // Livros coloridos
+            const bookColors = ['#8b0000', '#00008b', '#006400', '#8b4513', '#4b0082'];
+            // Usar tempo mais lento para mudança de cores (dividir por 5000 em vez de usar random puro)
+            const timeSeed = Math.floor(Date.now() / 5000);
+            for (let shelf = 0; shelf < 4; shelf++) {
+                for (let book = 0; book < Math.floor(width / (4 * pixelSize)); book++) {
+                    // Usar posição + tempo lento como seed para cores mais estáveis
+                    const colorIndex = (Math.floor(x) + Math.floor(y) + shelf * 10 + book * 3 + timeSeed) % bookColors.length;
+                    ctx.fillStyle = bookColors[colorIndex];
+                    ctx.fillRect(
+                        x + book * 4 * pixelSize + pixelSize,
+                        y + shelf * (height / 4) + 2 * pixelSize,
+                        3 * pixelSize,
+                        (height / 4) - 4 * pixelSize
+                    );
+                }
+            }
+        }
+
+        function drawChest(x, y, opened = false) {
+            const pixelSize = 2;
+            
+            if (opened) {
+                // Baú aberto (marrom claro)
+                ctx.fillStyle = '#8b6914';
+                ctx.fillRect(x - 4 * pixelSize, y - 2 * pixelSize, 8 * pixelSize, 6 * pixelSize);
+                ctx.fillStyle = '#daa520';
+                ctx.fillRect(x - 3 * pixelSize, y - 1 * pixelSize, 6 * pixelSize, 4 * pixelSize);
+                
+                // Tampa aberta
+                ctx.fillStyle = '#8b6914';
+                ctx.fillRect(x - 4 * pixelSize, y - 6 * pixelSize, 8 * pixelSize, 3 * pixelSize);
+            } else {
+                // Baú fechado (marrom escuro)
+                ctx.fillStyle = '#654321';
+                ctx.fillRect(x - 4 * pixelSize, y - 3 * pixelSize, 8 * pixelSize, 6 * pixelSize);
+                
+                // Tampa
+                ctx.fillStyle = '#8b6914';
+                ctx.fillRect(x - 4 * pixelSize, y - 5 * pixelSize, 8 * pixelSize, 3 * pixelSize);
+                
+                // Fechadura
+                ctx.fillStyle = '#ffd700';
+                ctx.fillRect(x - pixelSize, y - 1 * pixelSize, 2 * pixelSize, 2 * pixelSize);
+            }
+        }
+
+        function drawDeathBag(x, y) {
+            const pixelSize = 2;
+            
+            // Mochila (marrom escuro)
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(x - 4 * pixelSize, y - 4 * pixelSize, 8 * pixelSize, 8 * pixelSize);
+            
+            // Detalhes da mochila
+            ctx.fillStyle = '#8b6914';
+            ctx.fillRect(x - 3 * pixelSize, y - 3 * pixelSize, 6 * pixelSize, 6 * pixelSize);
+            
+            // Fivela
+            ctx.fillStyle = '#c0c0c0';
+            ctx.fillRect(x - pixelSize, y - pixelSize, 2 * pixelSize, 2 * pixelSize);
+            
+            // Efeito de brilho pulsante
+            const pulse = Math.sin(Date.now() / 500) * 0.3 + 0.7;
+            ctx.shadowBlur = 10 * pulse;
+            ctx.shadowColor = '#ffff00';
+            ctx.strokeStyle = '#ffff00';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x - 5 * pixelSize, y - 5 * pixelSize, 10 * pixelSize, 10 * pixelSize);
+            ctx.shadowBlur = 0;
+        }
+
+        function drawWall(x, y, width, height) {
+            // Parede de pedra escura
+            ctx.fillStyle = '#2a2a2a';
+            ctx.fillRect(x, y, width, height);
+            
+            // Textura de pedra
+            ctx.fillStyle = '#1a1a1a';
+            const pixelSize = 4;
+            for (let i = 0; i < width / pixelSize; i++) {
+                for (let j = 0; j < height / pixelSize; j++) {
+                    if (Math.random() > 0.7) {
+                        ctx.fillRect(x + i * pixelSize, y + j * pixelSize, pixelSize, pixelSize);
+                    }
+                }
+            }
+            
+            // Borda
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, width, height);
+        }
+
+        // ==================== DEFINIÇÃO DOS NÍVEIS ====================
+        const levels = {
+            1: {
+                name: "Entrada da Livraria",
+                description: "Uma livraria abandonada... algo está muito errado aqui.",
+                bgColor: "#2a1a0a",
+                wallColor: "#4a2a1a",
+                floorColor: "#3a2a1a",
+                walls: [
+                    { x: 300, y: 200, width: 20, height: 200 },
+                    { x: 500, y: 100, width: 20, height: 250 }
+                ],
+                bookshelves: [
+                    { x: 200, y: 150, width: 60, height: 80 },
+                    { x: 400, y: 300, width: 80, height: 100 },
+                    { x: 600, y: 200, width: 70, height: 90 },
+                    { x: 150, y: 400, width: 65, height: 85 },
+                    { x: 700, y: 450, width: 70, height: 95 },
+                    { x: 350, y: 150, width: 75, height: 90 },
+                    { x: 550, y: 400, width: 65, height: 100 },
+                    { x: 100, y: 250, width: 70, height: 85 }
+                ],
+                doors: [
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 2, label: "→ Setor 2" }
+                ],
+                items: [
+                    { x: 150, y: 200, type: "note", content: "Nota: 'Esta livraria guarda segredos sombrios. Procure os baús escondidos entre as estantes.'" },
+                    { x: 700, y: 350, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                ],
+                chests: [],
+                entitySpawn: false
+            },
+            2: {
+                name: "Corredor dos Livros Antigos",
+                description: "Estantes altas bloqueiam sua visão...",
+                bgColor: "#1a1a1a",
+                wallColor: "#2a2a2a",
+                floorColor: "#1a1a1a",
+                walls: [
+                    { x: 200, y: 100, width: 20, height: 150 },
+                    { x: 200, y: 100, width: 200, height: 20 },
+                    { x: 400, y: 250, width: 20, height: 200 },
+                    { x: 600, y: 150, width: 20, height: 180 },
+                    { x: 300, y: 400, width: 250, height: 20 }
+                ],
+                bookshelves: [
+                    { x: 150, y: 100, width: 60, height: 120 },
+                    { x: 300, y: 250, width: 80, height: 100 },
+                    { x: 500, y: 150, width: 60, height: 120 },
+                    { x: 650, y: 350, width: 70, height: 110 },
+                    { x: 250, y: 450, width: 75, height: 95 },
+                    { x: 700, y: 200, width: 65, height: 105 },
+                    { x: 100, y: 350, width: 70, height: 100 },
+                    { x: 450, y: 400, width: 65, height: 90 },
+                    { x: 350, y: 100, width: 60, height: 95 }
+                ],
+                doors: [
+                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 1, label: "← Setor 1" },
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 3, label: "→ Setor 3" }
+                ],
+                items: [
+                    { x: canvas.width / 2, y: canvas.height / 2, type: "code", content: "Código: 4721", code: "4721" },
+                    { x: 450, y: 450, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                ],
+                chests: [
+                    { x: 250, y: 400, opened: false, content: "secret_door_1" }
+                ],
+                secretDoors: [],
+                entitySpawn: true
+            },
+            3: {
+                name: "Arquivo Escuro",
+                description: "Escuridão total. Você precisa de luz...",
+                bgColor: "#0a0a0a",
+                wallColor: "#1a1a1a",
+                floorColor: "#0a0a0a",
+                walls: [
+                    { x: 250, y: 100, width: 20, height: 200 },
+                    { x: 250, y: 350, width: 20, height: 150 },
+                    { x: 450, y: 100, width: 20, height: 200 },
+                    { x: 450, y: 350, width: 20, height: 150 },
+                    { x: 150, y: 250, width: 150, height: 20 },
+                    { x: 450, y: 250, width: 200, height: 20 }
+                ],
+                bookshelves: [
+                    { x: 180, y: 120, width: 70, height: 130 },
+                    { x: 350, y: 280, width: 90, height: 110 },
+                    { x: 520, y: 180, width: 65, height: 125 },
+                    { x: 700, y: 350, width: 75, height: 115 },
+                    { x: 250, y: 450, width: 80, height: 100 },
+                    { x: 600, y: 100, width: 70, height: 110 },
+                    { x: 100, y: 350, width: 65, height: 95 },
+                    { x: 450, y: 450, width: 70, height: 105 },
+                    { x: 300, y: 100, width: 60, height: 90 },
+                    { x: 650, y: 250, width: 75, height: 100 }
+                ],
+                doors: [
+                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 2, label: "← Setor 2" },
+                    { x: canvas.width / 2, y: 50, width: 80, height: 40, locked: true, leadsTo: 4, label: "↑ Setor 4 [CÓDIGO]", requiredCode: "4721" }
+                ],
+                items: [
+                    { x: 300, y: 400, type: "flashlight", content: "Lanterna encontrada! Pressione F para ligar/desligar." }
+                ],
+                chests: [
+                    { x: 600, y: 250, opened: false, content: "code_8932" }
+                ],
+                secretDoors: [
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: true, leadsTo: 4, label: "→ Porta Secreta", unlockedBy: "secret_door_1" }
+                ],
+                entitySpawn: true
+            },
+            4: {
+                name: "Labirinto de Estantes",
+                description: "Um labirinto complexo de estantes antigas...",
+                bgColor: "#2a0000",
+                wallColor: "#4a0000",
+                floorColor: "#1a0000",
+                walls: [
+                    { x: 150, y: 150, width: 20, height: 100 },
+                    { x: 150, y: 300, width: 20, height: 200 },
+                    { x: 250, y: 200, width: 20, height: 150 },
+                    { x: 350, y: 150, width: 20, height: 100 },
+                    { x: 350, y: 300, width: 20, height: 200 },
+                    { x: 450, y: 200, width: 20, height: 150 },
+                    { x: 550, y: 150, width: 20, height: 100 },
+                    { x: 550, y: 300, width: 20, height: 200 }
+                ],
+                bookshelves: [
+                    { x: 120, y: 100, width: 60, height: 140 },
+                    { x: 200, y: 250, width: 80, height: 120 },
+                    { x: 300, y: 150, width: 70, height: 130 },
+                    { x: 400, y: 300, width: 75, height: 125 },
+                    { x: 500, y: 180, width: 65, height: 135 },
+                    { x: 600, y: 400, width: 85, height: 110 },
+                    { x: 700, y: 250, width: 70, height: 120 },
+                    { x: 180, y: 450, width: 75, height: 100 },
+                    { x: 350, y: 450, width: 70, height: 110 },
+                    { x: 520, y: 100, width: 65, height: 95 }
+                ],
+                doors: [
+                    { x: canvas.width / 2, y: canvas.height - 50, width: 80, height: 40, locked: false, leadsTo: 3, label: "↓ Setor 3" },
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 5, label: "→ Setor 5" }
+                ],
+                items: [
+                    { x: 350, y: 350, type: "code", content: "Código: 1156", code: "1156" },
+                    { x: 500, y: 150, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                ],
+                chests: [
+                    { x: 650, y: 400, opened: false, content: "secret_door_2" },
+                    { x: 200, y: 200, opened: false, content: "code_0000" }
+                ],
+                secretDoors: [],
+                entitySpawn: true
+            },
+            5: {
+                name: "Sala dos Segredos",
+                description: "Algo terrível está próximo...",
+                bgColor: "#0a0a1a",
+                wallColor: "#1a1a2a",
+                floorColor: "#0a0a1a",
+                walls: [
+                    { x: 200, y: 150, width: 20, height: 100 },
+                    { x: 200, y: 300, width: 20, height: 150 },
+                    { x: 350, y: 100, width: 20, height: 150 },
+                    { x: 350, y: 300, width: 20, height: 200 },
+                    { x: 500, y: 150, width: 20, height: 100 },
+                    { x: 500, y: 300, width: 20, height: 150 },
+                    { x: 650, y: 100, width: 20, height: 200 },
+                    { x: 150, y: 250, width: 100, height: 20 },
+                    { x: 300, y: 250, width: 100, height: 20 },
+                    { x: 450, y: 250, width: 100, height: 20 }
+                ],
+                bookshelves: [
+                    { x: 150, y: 150, width: 70, height: 130 },
+                    { x: 280, y: 300, width: 80, height: 120 },
+                    { x: 430, y: 200, width: 75, height: 125 },
+                    { x: 580, y: 350, width: 85, height: 115 },
+                    { x: 250, y: 450, width: 70, height: 130 },
+                    { x: 450, y: 100, width: 65, height: 110 },
+                    { x: 650, y: 450, width: 75, height: 105 },
+                    { x: 100, y: 350, width: 70, height: 95 },
+                    { x: 550, y: 100, width: 65, height: 100 }
+                ],
+                doors: [
+                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 4, label: "← Setor 4" },
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 6, label: "→ Setor 6" }
+                ],
+                items: [
+                    { x: 400, y: 200, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                ],
+                chests: [
+                    { x: canvas.width / 2, y: canvas.height / 2, opened: false, content: "code_7777" }
+                ],
+                secretDoors: [
+                    { x: canvas.width / 2, y: 50, width: 80, height: 40, locked: true, leadsTo: 7, label: "↑ Atalho Secreto", unlockedBy: "secret_door_2" }
+                ],
+                entitySpawn: true
+            },
+            6: {
+                name: "Corredor Infinito",
+                description: "As paredes parecem se mover...",
+                bgColor: "#1a001a",
+                wallColor: "#2a002a",
+                floorColor: "#1a001a",
+                walls: [
+                    { x: 180, y: 80, width: 20, height: 120 },
+                    { x: 180, y: 250, width: 20, height: 150 },
+                    { x: 280, y: 150, width: 20, height: 100 },
+                    { x: 280, y: 300, width: 20, height: 180 },
+                    { x: 380, y: 80, width: 20, height: 150 },
+                    { x: 380, y: 280, width: 20, height: 200 },
+                    { x: 480, y: 120, width: 20, height: 120 },
+                    { x: 480, y: 290, width: 20, height: 190 },
+                    { x: 580, y: 80, width: 20, height: 180 },
+                    { x: 580, y: 310, width: 20, height: 170 },
+                    { x: 680, y: 100, width: 20, height: 150 },
+                    { x: 680, y: 300, width: 20, height: 180 }
+                ],
+                bookshelves: [
+                    { x: 220, y: 180, width: 60, height: 100 },
+                    { x: 320, y: 250, width: 70, height: 110 },
+                    { x: 420, y: 200, width: 65, height: 120 },
+                    { x: 520, y: 350, width: 75, height: 105 },
+                    { x: 620, y: 450, width: 70, height: 95 },
+                    { x: 120, y: 300, width: 65, height: 100 },
+                    { x: 720, y: 180, width: 70, height: 110 },
+                    { x: 250, y: 450, width: 75, height: 105 },
+                    { x: 450, y: 100, width: 65, height: 95 }
+                ],
+                doors: [
+                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 5, label: "← Setor 5" },
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: true, leadsTo: 7, label: "→ Setor 7 [CÓDIGO]", requiredCode: "1156" }
+                ],
+                items: [
+                    { x: 400, y: 400, type: "code", content: "Código: 9999", code: "9999" },
+                    { x: 550, y: 150, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                ],
+                chests: [
+                    { x: 300, y: 200, opened: false, content: "secret_door_3" }
+                ],
+                secretDoors: [],
+                entitySpawn: true
+            },
+            7: {
+                name: "Abismo das Sombras",
+                description: "A escuridão consome tudo...",
+                bgColor: "#000000",
+                wallColor: "#0a0a0a",
+                floorColor: "#000000",
+                walls: [
+                    { x: 150, y: 100, width: 150, height: 20 },
+                    { x: 150, y: 100, width: 20, height: 150 },
+                    { x: 350, y: 150, width: 20, height: 200 },
+                    { x: 350, y: 150, width: 200, height: 20 },
+                    { x: 530, y: 150, width: 20, height: 250 },
+                    { x: 200, y: 300, width: 180, height: 20 },
+                    { x: 200, y: 300, width: 20, height: 180 },
+                    { x: 400, y: 400, width: 180, height: 20 },
+                    { x: 400, y: 250, width: 20, height: 150 }
+                ],
+                bookshelves: [
+                    { x: 250, y: 200, width: 80, height: 120 },
+                    { x: 450, y: 300, width: 75, height: 130 },
+                    { x: 600, y: 250, width: 70, height: 140 },
+                    { x: 300, y: 450, width: 85, height: 110 },
+                    { x: 100, y: 200, width: 70, height: 100 },
+                    { x: 550, y: 450, width: 75, height: 105 },
+                    { x: 180, y: 400, width: 65, height: 95 },
+                    { x: 650, y: 350, width: 70, height: 120 }
+                ],
+                doors: [
+                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 6, label: "← Setor 6" },
+                    { x: canvas.width / 2, y: 50, width: 80, height: 40, locked: true, leadsTo: 8, label: "↑ Setor 8 [3 CÓDIGOS]", requiredCodes: 3 }
+                ],
+                items: [
+                    { x: 350, y: 350, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                ],
+                chests: [
+                    { x: 450, y: 450, opened: false, content: "code_3333" },
+                    { x: 250, y: 150, opened: false, content: "secret_door_4" }
+                ],
+                secretDoors: [
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: true, leadsTo: 8, label: "→ Atalho Final", unlockedBy: "secret_door_3" }
+                ],
+                entitySpawn: true
+            },
+            8: {
+                name: "Coração da Livraria",
+                description: "A saída está aqui... mas algo terrível também está.",
+                bgColor: "#0a0000",
+                wallColor: "#1a0000",
+                floorColor: "#0a0000",
+                walls: [
+                    { x: 250, y: 150, width: 300, height: 20 },
+                    { x: 250, y: 150, width: 20, height: 300 },
+                    { x: 530, y: 150, width: 20, height: 300 },
+                    { x: 250, y: 430, width: 300, height: 20 },
+                    { x: 350, y: 250, width: 100, height: 20 },
+                    { x: 350, y: 250, width: 20, height: 100 },
+                    { x: 430, y: 250, width: 20, height: 100 },
+                    { x: 350, y: 330, width: 100, height: 20 }
+                ],
+                bookshelves: [
+                    { x: 200, y: 200, width: 60, height: 100 },
+                    { x: 600, y: 200, width: 60, height: 100 },
+                    { x: 200, y: 400, width: 60, height: 100 },
+                    { x: 600, y: 400, width: 60, height: 100 },
+                    { x: 400, y: 500, width: 70, height: 90 },
+                    { x: 300, y: 100, width: 65, height: 95 },
+                    { x: 500, y: 100, width: 65, height: 95 },
+                    { x: 100, y: 300, width: 70, height: 100 },
+                    { x: 700, y: 300, width: 70, height: 100 }
+                ],
+                doors: [
+                    { x: canvas.width / 2, y: canvas.height - 50, width: 80, height: 40, locked: false, leadsTo: 7, label: "↓ Setor 7" },
+                    { x: canvas.width / 2, y: 50, width: 80, height: 40, locked: true, leadsTo: "exit", label: "↑ SAÍDA [6 CÓDIGOS]", requiredCodes: 6 }
+                ],
+                items: [
+                    { x: 300, y: 300, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                ],
+                chests: [
+                    { x: canvas.width / 2, y: canvas.height / 2, opened: false, content: "final_key" }
+                ],
+                secretDoors: [
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: true, leadsTo: "exit", label: "→ Saída Secreta", unlockedBy: "secret_door_4" }
+                ],
+                entitySpawn: true
+            }
+        };
+
+        // ==================== FUNÇÕES DE UI ====================
+        function showMessage(text, duration = 3000) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.style.display = 'block';
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, duration);
+        }
+
+        function updateHUD() {
+            document.getElementById('current-level').textContent = game.currentLevel;
+            document.getElementById('houses-explored').textContent = game.housesExplored.size;
+            document.getElementById('codes-collected').textContent = game.codesCollected.length;
+            document.getElementById('chests-opened').textContent = game.chestsOpened;
+        }
+
+        function updateInventory() {
+            const inventoryEl = document.getElementById('inventory-items');
+            if (game.inventory.length === 0) {
+                inventoryEl.innerHTML = '<li>Vazio</li>';
+            } else {
+                inventoryEl.innerHTML = game.inventory.map(item => `<li>${item}</li>`).join('');
+            }
+        }
+
+        function updateFlashlight() {
+            const overlay = document.getElementById('flashlight-overlay');
+            const battery = document.getElementById('flashlight-battery');
+            
+            if (!game.flashlightOn && game.currentLevel >= 3) {
+                overlay.style.display = 'block';
+                battery.style.display = 'block';
+            } else if (game.flashlightOn && game.currentLevel >= 3 && game.flashlightBattery > 0) {
+                overlay.style.display = 'none';
+                battery.style.display = 'block';
+            } else {
+                overlay.style.display = 'none';
+                battery.style.display = 'none';
+            }
+        }
+
+        // ==================== FUNÇÕES DO JOGO ====================
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-canvas').style.display = 'block';
+            game.state = 'playing';
+            game.currentLevel = 1;
+            game.housesExplored = new Set([1]);
+            game.codesCollected = [];
+            game.chestsOpened = 0;
+            game.inventory = [];
+            game.flashlightOn = false;
+            game.flashlightBattery = 100;
+            game.secretDoorsUnlocked = [];
+            game.deathLocation = null;
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2;
+            entity.active = false;
+            updateHUD();
+            updateInventory();
+            updateFlashlight();
+            showMessage("Explore a livraria e procure pistas...");
+            gameLoop();
+        }
+
+        function gameOver() {
+            game.state = 'gameover';
+            
+            // Salvar localização da morte e itens (exceto códigos)
+            const droppedItems = game.inventory.filter(item => !item.startsWith('Código:'));
+            
+            if (droppedItems.length > 0) {
+                game.deathLocation = {
+                    x: player.x,
+                    y: player.y,
+                    level: game.currentLevel,
+                    items: [...droppedItems]
+                };
+                
+                // Remover itens dropados do inventário (manter códigos)
+                game.inventory = game.inventory.filter(item => item.startsWith('Código:'));
+                updateInventory();
+            }
+            
+            document.getElementById('game-over-screen').style.display = 'flex';
+        }
+
+        function victory() {
+            game.state = 'victory';
+            document.getElementById('victory-screen').style.display = 'flex';
+        }
+
+        function checkInteraction() {
+            const level = levels[game.currentLevel];
+            
+            if (game.deathLocation && 
+                game.deathLocation.level === game.currentLevel) {
+                const dist = Math.hypot(player.x - game.deathLocation.x, player.y - game.deathLocation.y);
+                if (dist < 40) {
+                    // Recuperar todos os itens
+                    game.inventory.push(...game.deathLocation.items);
+                    showMessage(`Você recuperou seus itens! (${game.deathLocation.items.length} itens)`);
+                    game.deathLocation = null;
+                    updateInventory();
+                    return;
+                }
+            }
+            
+            // Verificar portas normais
+            level.doors.forEach(door => {
+                const dist = Math.hypot(player.x - door.x, player.y - door.y);
+                if (dist < 60) {
+                    if (door.locked) {
+                        if (door.requiredCode && game.codesCollected.includes(door.requiredCode)) {
+                            showMessage(`Porta destrancada com código ${door.requiredCode}!`);
+                            door.locked = false;
+                        } else if (door.requiredCodes && game.codesCollected.length >= door.requiredCodes) {
+                            if (door.leadsTo === "exit") {
+                                victory();
+                                return;
+                            }
+                        } else {
+                            showMessage("Porta trancada! Você precisa encontrar o código.");
+                        }
+                    } else {
+                        if (door.leadsTo === "exit") {
+                            victory();
+                        } else {
+                            changeLevel(door.leadsTo);
+                        }
+                    }
+                }
+            });
+            
+            // Verificar portas secretas
+            if (level.secretDoors) {
+                level.secretDoors.forEach(door => {
+                    const dist = Math.hypot(player.x - door.x, player.y - door.y);
+                    if (dist < 60) {
+                        if (door.locked && game.secretDoorsUnlocked.includes(door.unlockedBy)) {
+                            showMessage("Porta secreta destrancada!");
+                            door.locked = false;
+                        }
+                        
+                        if (!door.locked) {
+                            if (door.leadsTo === "exit") {
+                                victory();
+                            } else {
+                                changeLevel(door.leadsTo);
+                            }
+                        } else {
+                            showMessage("Uma porta secreta... mas está trancada!");
+                        }
+                    }
+                });
+            }
+            
+            // Verificar baús
+            if (level.chests) {
+                level.chests.forEach((chest, index) => {
+                    const dist = Math.hypot(player.x - chest.x, player.y - chest.y);
+                    if (dist < 40 && !chest.opened) {
+                        chest.opened = true;
+                        game.chestsOpened++;
+                        
+                        if (chest.content.startsWith('code_')) {
+                            const code = chest.content.replace('code_', '');
+                            game.codesCollected.push(code);
+                            game.inventory.push(`Código: ${code}`);
+                            showMessage(`Baú aberto! Código encontrado: ${code}`);
+                        } else if (chest.content.startsWith('secret_door_')) {
+                            game.secretDoorsUnlocked.push(chest.content);
+                            game.inventory.push(`Chave: ${chest.content}`);
+                            showMessage("Baú aberto! Você encontrou uma chave para uma porta secreta!");
+                        } else if (chest.content === 'final_key') {
+                            game.inventory.push("Chave Final");
+                            showMessage("Baú aberto! Você encontrou a Chave Final!");
+                        }
+                        
+                        updateInventory();
+                        updateHUD();
+                    }
+                });
+            }
+            
+            // Verificar itens
+            level.items.forEach((item, index) => {
+                const dist = Math.hypot(player.x - item.x, player.y - item.y);
+                if (dist < 40) {
+                    if (item.type === "code") {
+                        if (!game.codesCollected.includes(item.code)) {
+                            game.codesCollected.push(item.code);
+                            game.inventory.push(`Código: ${item.code}`);
+                            showMessage(item.content);
+                            updateInventory();
+                            updateHUD();
+                            level.items.splice(index, 1);
+                        }
+                    } else if (item.type === "flashlight") {
+                        if (!game.inventory.includes("Lanterna")) {
+                            game.inventory.push("Lanterna");
+                            showMessage(item.content);
+                            updateInventory();
+                            level.items.splice(index, 1);
+                        }
+                    } else if (item.type === "battery") {
+                        game.flashlightBattery = Math.min(100, game.flashlightBattery + 50);
+                        showMessage(item.content);
+                        updateHUD();
+                        level.items.splice(index, 1);
+                    } else if (item.type === "note") {
+                        showMessage(item.content, 5000);
+                    }
+                }
+            });
+        }
+
+        function changeLevel(newLevel) {
+            game.currentLevel = newLevel;
+            game.housesExplored.add(newLevel);
+            
+            const spawnPositions = {
+                1: { x: canvas.width / 2, y: canvas.height / 2 },
+                2: { x: 100, y: canvas.height / 2 },
+                3: { x: 100, y: 100 },
+                4: { x: canvas.width / 2, y: canvas.height - 100 },
+                5: { x: 100, y: canvas.height / 2 },
+                6: { x: 100, y: canvas.height / 2 },
+                7: { x: 100, y: canvas.height / 2 },
+                8: { x: canvas.width / 2, y: canvas.height - 100 }
+            };
+            
+            player.x = spawnPositions[newLevel].x;
+            player.y = spawnPositions[newLevel].y;
+            
+            console.log("[v0] Mudou para nível:", newLevel, "Posição do jogador:", player.x, player.y);
+            
+            if (levels[newLevel].entitySpawn && !entity.active) {
+                entity.active = true;
+                entity.x = Math.random() * canvas.width;
+                entity.y = Math.random() * canvas.height;
+            }
+            
+            updateHUD();
+            updateFlashlight();
+            showMessage(`Você entrou em: ${levels[newLevel].name}`);
+        }
+
+        // ==================== MOVIMENTO E FÍSICA ====================
+        function checkWallCollision(newX, newY) {
+            const level = levels[game.currentLevel];
+            if (!level.walls) return false;
+            
+            for (let wall of level.walls) {
+                if (newX + player.size > wall.x &&
+                    newX - player.size < wall.x + wall.width &&
+                    newY + player.size > wall.y &&
+                    newY - player.size < wall.y + wall.height) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function checkBookshelfCollision(newX, newY) {
+            const level = levels[game.currentLevel];
+            if (!level.bookshelves) return false;
+            
+            for (let shelf of level.bookshelves) {
+                if (newX + player.size > shelf.x &&
+                    newX - player.size < shelf.x + shelf.width &&
+                    newY + player.size > shelf.y &&
+                    newY - player.size < shelf.y + shelf.height) {
+                    console.log("[v0] Colisão com estante detectada em:", newX, newY);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function updatePlayer() {
+            let dx = 0;
+            let dy = 0;
+            
+            if (keys['w'] || keys['arrowup']) {
+                dy -= 1;
+                player.direction = 'up';
+            }
+            if (keys['s'] || keys['arrowdown']) {
+                dy += 1;
+                player.direction = 'down';
+            }
+            if (keys['a'] || keys['arrowleft']) {
+                dx -= 1;
+                player.direction = 'left';
+            }
+            if (keys['d'] || keys['arrowright']) {
+                dx += 1;
+                player.direction = 'right';
+            }
+            
+            if (dx !== 0 || dy !== 0) {
+                console.log("[v0] Tentando mover. dx:", dx, "dy:", dy, "Posição atual:", player.x, player.y);
+            }
+            
+            if (dx !== 0 && dy !== 0) {
+                dx *= 0.707;
+                dy *= 0.707;
+            }
+            
+            const newX = player.x + dx * player.speed;
+            const newY = player.y + dy * player.speed;
+            
+            if (!checkBookshelfCollision(newX, newY) && !checkWallCollision(newX, newY)) {
+                player.x = newX;
+                player.y = newY;
+            } else {
+                console.log("[v0] Movimento bloqueado por colisão");
+            }
+            
+            player.x = Math.max(player.size + 20, Math.min(canvas.width - player.size - 20, player.x));
+            player.y = Math.max(player.size + 20, Math.min(canvas.height - player.size - 20, player.y));
+            
+            if (dx !== 0 || dy !== 0) {
+                player.angle = Math.atan2(dy, dx);
+            }
+        }
+
+        function updateEntity() {
+            if (!entity.active) return;
+            
+            const dx = player.x - entity.x;
+            const dy = player.y - entity.y;
+            const dist = Math.hypot(dx, dy);
+            
+            if (dist > 5) {
+                const newX = entity.x + (dx / dist) * entity.speed;
+                const newY = entity.y + (dy / dist) * entity.speed;
+                
+                if (!checkBookshelfCollision(newX, newY) && !checkWallCollision(newX, newY)) {
+                    entity.x = newX;
+                    entity.y = newY;
+                }
+            }
+            
+            if (dist < player.size + entity.size) {
+                gameOver();
+            }
+        }
+
+        function updateFlashlightBattery() {
+            if (game.flashlightOn && game.flashlightBattery > 0) {
+                game.flashlightBattery -= 0.05;
+                document.getElementById('battery-level').textContent = Math.floor(game.flashlightBattery);
+                
+                if (game.flashlightBattery <= 0) {
+                    game.flashlightOn = false;
+                    updateFlashlight();
+                    showMessage("A bateria da lanterna acabou!");
+                }
+            }
+        }
+
+        // ==================== RENDERIZAÇÃO ====================
+        function render() {
+            const level = levels[game.currentLevel];
+            
+            // Background
+            ctx.fillStyle = level.bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Efeito de textura no chão (madeira)
+            ctx.fillStyle = level.floorColor;
+            for (let i = 0; i < 100; i++) {
+                ctx.fillRect(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height,
+                    Math.random() * 10 + 5,
+                    2
+                );
+            }
+            
+            // Paredes externas
+            ctx.fillStyle = level.wallColor;
+            ctx.fillRect(0, 0, canvas.width, 20);
+            ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
+            ctx.fillRect(0, 0, 20, canvas.height);
+            ctx.fillRect(canvas.width - 20, 0, 20, canvas.height);
+            
+            if (level.walls) {
+                level.walls.forEach(wall => {
+                    drawWall(wall.x, wall.y, wall.width, wall.height);
+                });
+            }
+            
+            if (level.bookshelves) {
+                level.bookshelves.forEach(shelf => {
+                    drawBookshelf(shelf.x, shelf.y, shelf.width, shelf.height);
+                });
+            }
+            
+            // Portas
+            level.doors.forEach(door => {
+                ctx.fillStyle = door.locked ? '#8b0000' : '#2a4a2a';
+                ctx.fillRect(door.x - door.width / 2, door.y - door.height / 2, door.width, door.height);
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText(door.label, door.x, door.y - door.height / 2 - 10);
+                
+                const dist = Math.hypot(player.x - door.x, player.y - door.y);
+                if (dist < 60) {
+                    ctx.strokeStyle = '#ffff00';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(door.x - door.width / 2 - 5, door.y - door.height / 2 - 5, door.width + 10, door.height + 10);
+                    
+                    ctx.fillStyle = '#ffff00';
+                    ctx.font = '14px Courier New';
+                    ctx.fillText('[E] Interagir', door.x, door.y + door.height / 2 + 25);
+                }
+            });
+            
+            if (level.secretDoors) {
+                level.secretDoors.forEach(door => {
+                    ctx.fillStyle = door.locked ? '#4a0a4a' : '#2a4a4a';
+                    ctx.fillRect(door.x - door.width / 2, door.y - door.height / 2, door.width, door.height);
+                    
+                    ctx.fillStyle = '#ff00ff';
+                    ctx.font = '12px Courier New';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(door.label, door.x, door.y - door.height / 2 - 10);
+                    
+                    const dist = Math.hypot(player.x - door.x, player.y - door.y);
+                    if (dist < 60) {
+                        ctx.strokeStyle = '#ff00ff';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(door.x - door.width / 2 - 5, door.y - door.height / 2 - 5, door.width + 10, door.height + 10);
+                        
+                        ctx.fillStyle = '#ff00ff';
+                        ctx.font = '14px Courier New';
+                        ctx.fillText('[E] Interagir', door.x, door.y + door.height / 2 + 25);
+                    }
+                });
+            }
+            
+            if (level.chests) {
+                level.chests.forEach(chest => {
+                    drawChest(chest.x, chest.y, chest.opened);
+                    
+                    const dist = Math.hypot(player.x - chest.x, player.y - chest.y);
+                    if (dist < 40 && !chest.opened) {
+                        ctx.fillStyle = '#ffff00';
+                        ctx.font = '14px Courier New';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('[E] Abrir Baú', chest.x, chest.y - 30);
+                    }
+                });
+            }
+            
+            // Itens
+            level.items.forEach(item => {
+                if (item.type === "code") {
+                    ctx.fillStyle = '#ffd700';
+                    ctx.beginPath();
+                    ctx.arc(item.x, item.y, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.fillStyle = '#000';
+                    ctx.font = 'bold 12px Courier New';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('C', item.x, item.y + 5);
+                } else if (item.type === "flashlight") {
+                    ctx.fillStyle = '#ffff00';
+                    ctx.fillRect(item.x - 10, item.y - 5, 20, 10);
+                } else if (item.type === "battery") {
+                    ctx.fillStyle = '#00ff00';
+                    ctx.fillRect(item.x - 8, item.y - 12, 16, 24);
+                    ctx.fillStyle = '#008800';
+                    ctx.fillRect(item.x - 4, item.y - 14, 8, 4);
+                    
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 10px Courier New';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('+', item.x, item.y + 3);
+                } else if (item.type === "note") {
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(item.x - 10, item.y - 15, 20, 30);
+                }
+                
+                const dist = Math.hypot(player.x - item.x, player.y - item.y);
+                if (dist < 40) {
+                    ctx.fillStyle = '#ffff00';
+                    ctx.font = '14px Courier New';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('[E] Interagir', item.x, item.y - 30);
+                }
+            });
+            
+            if (game.deathLocation && game.deathLocation.level === game.currentLevel) {
+                drawDeathBag(game.deathLocation.x, game.deathLocation.y);
+                
+                const dist = Math.hypot(player.x - game.deathLocation.x, player.y - game.deathLocation.y);
+                if (dist < 40) {
+                    ctx.fillStyle = '#ffff00';
+                    ctx.font = '14px Courier New';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('[E] Recuperar Itens', game.deathLocation.x, game.deathLocation.y - 30);
+                    ctx.fillText(`(${game.deathLocation.items.length} itens)`, game.deathLocation.x, game.deathLocation.y - 45);
+                }
+            }
+            
+            if (entity.active) {
+                drawEntity(entity.x, entity.y);
+            }
+            
+            drawPlayer(player.x, player.y);
+            
+            if ((!game.flashlightOn || game.flashlightBattery <= 0) && game.currentLevel >= 3) {
+                const overlay = document.getElementById('flashlight-overlay');
+                overlay.style.background = `radial-gradient(circle at ${player.x}px ${player.y}px, transparent 0%, transparent 150px, rgba(0, 0, 0, 0.95) 300px)`;
+            }
+        }
+
+        // ==================== GAME LOOP ====================
+        function gameLoop() {
+            if (game.state !== 'playing') return;
+            
+            updatePlayer();
+            updateEntity();
+            updateFlashlightBattery();
+            render();
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        
+        document.getElementById('register-btn').addEventListener('click', () => {
+            // Mostrar tela de susto
+            const scareScreen = document.getElementById('scare-screen');
+            const scareCanvas = document.getElementById('scare-canvas');
+            const scareCtx = scareCanvas.getContext('2d');
+            
+            scareScreen.style.display = 'flex';
+            
+            // Desenhar entidade assustadora grande
+            scareCtx.fillStyle = '#000';
+            scareCtx.fillRect(0, 0, 400, 400);
+            
+            // Entidade gigante e assustadora
+            const pixelSize = 4;
+            scareCtx.fillStyle = '#ffffff';
+            scareCtx.shadowBlur = 30;
+            scareCtx.shadowColor = '#ff0000';
+            
+            // Cabeça
+            scareCtx.fillRect(100, 80, 200, 160);
+            
+            // Olhos vermelhos brilhantes
+            scareCtx.fillStyle = '#ff0000';
+            scareCtx.fillRect(130, 120, 40, 60);
+            scareCtx.fillRect(230, 120, 40, 60);
+            
+            // Boca distorcida
+            scareCtx.fillStyle = '#000000';
+            scareCtx.fillRect(140, 200, 120, 30);
+            
+            // Dentes
+            scareCtx.fillStyle = '#ffffff';
+            for (let i = 0; i < 10; i++) {
+                scareCtx.fillRect(145 + i * 12, 205, 8, 20);
+            }
+            
+            // Após 1 segundo, mostrar tela de cadastro
+            setTimeout(() => {
+                scareScreen.style.display = 'none';
+                document.getElementById('register-screen').style.display = 'flex';
+            }, 1000);
+        });
+        
+        document.getElementById('back-to-menu').addEventListener('click', () => {
+            document.getElementById('register-screen').style.display = 'none';
+        });
+        
+        document.getElementById('register-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            showMessage("Cadastro realizado! (Simulação)");
+            document.getElementById('register-screen').style.display = 'none';
+        });
+        
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            document.getElementById('game-over-screen').style.display = 'none';
+            game.state = 'playing';
+            
+            // Respawnar no início do nível atual
+            const spawnPositions = {
+                1: { x: canvas.width / 2, y: canvas.height / 2 },
+                2: { x: 100, y: canvas.height / 2 },
+                3: { x: 100, y: 100 },
+                4: { x: canvas.width / 2, y: canvas.height - 100 },
+                5: { x: 100, y: canvas.height / 2 },
+                6: { x: 100, y: canvas.height / 2 },
+                7: { x: 100, y: canvas.height / 2 },
+                8: { x: canvas.width / 2, y: canvas.height - 100 }
+            };
+            
+            player.x = spawnPositions[game.currentLevel].x;
+            player.y = spawnPositions[game.currentLevel].y;
+            
+            // Reposicionar entidade longe do jogador
+            entity.x = Math.random() * canvas.width;
+            entity.y = Math.random() * canvas.height;
+            
+            // Garantir que a entidade não spawne muito perto do jogador
+            while (Math.hypot(player.x - entity.x, player.y - entity.y) < 200) {
+                entity.x = Math.random() * canvas.width;
+                entity.y = Math.random() * canvas.height;
+            }
+            
+            showMessage("Você respawnou! Volte ao local da morte para recuperar seus itens.");
+            gameLoop();
+        });
+        
+        document.getElementById('restart-btn-victory').addEventListener('click', () => {
+            document.getElementById('victory-screen').style.display = 'none';
+            startGame();
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+    </script>
+</body>
+</html>
