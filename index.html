@@ -438,7 +438,14 @@
             flashlightBattery: 100,
             entityActive: false,
             secretDoorsUnlocked: [],
-            deathLocation: null // { x, y, level, items }
+            deathLocation: null, // { x, y, level, items }
+            maxStamina: 100,
+            currentStamina: 100,
+            staminaRegenRate: 0.3,
+            isRunning: false,
+            hasGun: false,
+            ammo: 0,
+            bullets: [] // array de projéteis ativos
         };
 
         const player = {
@@ -446,6 +453,7 @@
             y: canvas.height / 2,
             size: 16,
             speed: 4.5,
+            runSpeed: 7.5,
             angle: 0,
             direction: 'down' // para animação do sprite
         };
@@ -463,7 +471,7 @@
         window.addEventListener('keydown', (e) => {
             keys[e.key.toLowerCase()] = true;
             
-            if (e.key.toLowerCase() === 'f' && game.currentLevel >= 2) {
+            if (e.key.toLowerCase() === 'f' && game.currentLevel >= 3) {
                 if (game.flashlightBattery > 0) {
                     game.flashlightOn = !game.flashlightOn;
                     updateFlashlight();
@@ -477,6 +485,27 @@
             }
         });
         window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+
+        canvas.addEventListener('click', (e) => {
+            if (game.state === 'playing' && game.hasGun && game.ammo > 0) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                // Criar projétil na direção do clique
+                const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
+                game.bullets.push({
+                    x: player.x,
+                    y: player.y,
+                    vx: Math.cos(angle) * 10,
+                    vy: Math.sin(angle) * 10,
+                    size: 5
+                });
+                
+                game.ammo--;
+                updateHUD();
+            }
+        });
 
         // ==================== FUNÇÕES DE DESENHO PIXEL ART ====================
         
@@ -709,6 +738,99 @@
             ctx.strokeRect(x, y, width, height);
         }
 
+        function drawSpiderweb(x, y, size) {
+            const pixelSize = 2;
+            
+            // Fios da teia
+            ctx.strokeStyle = '#cccccc';
+            ctx.lineWidth = 1;
+            ctx.globalAlpha = 0.6;
+            
+            // Fios radiais
+            for (let i = 0; i < 8; i++) {
+                const angle = (Math.PI * 2 / 8) * i;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + Math.cos(angle) * size, y + Math.sin(angle) * size);
+                ctx.stroke();
+            }
+            
+            // Círculos concêntricos
+            for (let r = size / 4; r <= size; r += size / 4) {
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            ctx.globalAlpha = 1;
+        }
+
+        function drawPumpkin(x, y) {
+            const pixelSize = 2;
+            
+            // Corpo da abóbora (laranja)
+            ctx.fillStyle = '#ff8800';
+            ctx.fillRect(x - 6 * pixelSize, y - 4 * pixelSize, 12 * pixelSize, 8 * pixelSize);
+            
+            // Linhas verticais da abóbora
+            ctx.fillStyle = '#cc6600';
+            ctx.fillRect(x - 4 * pixelSize, y - 4 * pixelSize, pixelSize, 8 * pixelSize);
+            ctx.fillRect(x - pixelSize, y - 4 * pixelSize, pixelSize, 8 * pixelSize);
+            ctx.fillRect(x + 2 * pixelSize, y - 4 * pixelSize, pixelSize, 8 * pixelSize);
+            
+            // Cabo (verde)
+            ctx.fillStyle = '#228b22';
+            ctx.fillRect(x - pixelSize, y - 6 * pixelSize, 2 * pixelSize, 3 * pixelSize);
+            
+            // Rosto assustador
+            ctx.fillStyle = '#000000';
+            // Olhos triangulares
+            ctx.beginPath();
+            ctx.moveTo(x - 4 * pixelSize, y - 2 * pixelSize);
+            ctx.lineTo(x - 2 * pixelSize, y - 2 * pixelSize);
+            ctx.lineTo(x - 3 * pixelSize, y);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(x + 2 * pixelSize, y - 2 * pixelSize);
+            ctx.lineTo(x + 4 * pixelSize, y - 2 * pixelSize);
+            ctx.lineTo(x + 3 * pixelSize, y);
+            ctx.fill();
+            
+            // Boca serrilhada
+            ctx.fillRect(x - 4 * pixelSize, y + pixelSize, 8 * pixelSize, pixelSize);
+            ctx.fillRect(x - 4 * pixelSize, y + pixelSize, pixelSize, 2 * pixelSize);
+            ctx.fillRect(x - 2 * pixelSize, y + pixelSize, pixelSize, 2 * pixelSize);
+            ctx.fillRect(x, y + pixelSize, pixelSize, 2 * pixelSize);
+            ctx.fillRect(x + 2 * pixelSize, y + pixelSize, pixelSize, 2 * pixelSize);
+        }
+
+        function drawSkull(x, y) {
+            const pixelSize = 2;
+            
+            // Crânio (branco/bege)
+            ctx.fillStyle = '#f5f5dc';
+            ctx.fillRect(x - 4 * pixelSize, y - 4 * pixelSize, 8 * pixelSize, 6 * pixelSize);
+            ctx.fillRect(x - 5 * pixelSize, y - 2 * pixelSize, 10 * pixelSize, 4 * pixelSize);
+            
+            // Olhos (preto)
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(x - 3 * pixelSize, y - 2 * pixelSize, 2 * pixelSize, 2 * pixelSize);
+            ctx.fillRect(x + pixelSize, y - 2 * pixelSize, 2 * pixelSize, 2 * pixelSize);
+            
+            // Nariz (triângulo)
+            ctx.beginPath();
+            ctx.moveTo(x - pixelSize, y);
+            ctx.lineTo(x + pixelSize, y);
+            ctx.lineTo(x, y + pixelSize);
+            ctx.fill();
+            
+            // Dentes
+            ctx.fillRect(x - 3 * pixelSize, y + 2 * pixelSize, pixelSize, 2 * pixelSize);
+            ctx.fillRect(x - pixelSize, y + 2 * pixelSize, pixelSize, 2 * pixelSize);
+            ctx.fillRect(x + pixelSize, y + 2 * pixelSize, pixelSize, 2 * pixelSize);
+        }
+
         // ==================== DEFINIÇÃO DOS NÍVEIS ====================
         const levels = {
             1: {
@@ -718,25 +840,26 @@
                 wallColor: "#4a2a1a",
                 floorColor: "#3a2a1a",
                 walls: [
-                    { x: 300, y: 200, width: 20, height: 200 },
-                    { x: 500, y: 100, width: 20, height: 250 }
+                    { x: canvas.width * 0.25, y: canvas.height * 0.3, width: 20, height: 200 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.15, width: 20, height: 250 },
+                    { x: canvas.width * 0.75, y: canvas.height * 0.4, width: 20, height: 180 }
                 ],
                 bookshelves: [
-                    { x: 200, y: 150, width: 60, height: 80 },
-                    { x: 400, y: 300, width: 80, height: 100 },
-                    { x: 600, y: 200, width: 70, height: 90 },
-                    { x: 150, y: 400, width: 65, height: 85 },
-                    { x: 700, y: 450, width: 70, height: 95 },
-                    { x: 350, y: 150, width: 75, height: 90 },
-                    { x: 550, y: 400, width: 65, height: 100 },
-                    { x: 100, y: 250, width: 70, height: 85 }
+                    { x: canvas.width * 0.15, y: canvas.height * 0.25, width: 60, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.5, width: 80, height: 100 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.35, width: 70, height: 90 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.65, width: 65, height: 85 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.7, width: 70, height: 95 },
+                    { x: canvas.width * 0.45, y: canvas.height * 0.2, width: 75, height: 90 },
+                    { x: canvas.width * 0.65, y: canvas.height * 0.6, width: 65, height: 100 },
+                    { x: canvas.width * 0.12, y: canvas.height * 0.45, width: 70, height: 85 }
                 ],
                 doors: [
                     { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 2, label: "→ Setor 2" }
                 ],
                 items: [
-                    { x: 150, y: 200, type: "note", content: "Nota: 'Esta livraria guarda segredos sombrios. Procure os baús escondidos entre as estantes.'" },
-                    { x: 700, y: 350, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                    { x: canvas.width * 0.2, y: canvas.height * 0.35, type: "note", content: "Nota: 'Esta livraria guarda segredos sombrios. Procure os baús escondidos entre as estantes.'" },
+                    { x: canvas.width * 0.75, y: canvas.height * 0.55, type: "battery", content: "Pilha encontrada! +50% de bateria" }
                 ],
                 chests: [],
                 entitySpawn: false
@@ -748,22 +871,23 @@
                 wallColor: "#2a2a2a",
                 floorColor: "#1a1a1a",
                 walls: [
-                    { x: 200, y: 100, width: 20, height: 150 },
-                    { x: 200, y: 100, width: 200, height: 20 },
-                    { x: 400, y: 250, width: 20, height: 200 },
-                    { x: 600, y: 150, width: 20, height: 180 },
-                    { x: 300, y: 400, width: 250, height: 20 }
+                    { x: canvas.width * 0.2, y: canvas.height * 0.15, width: 20, height: 150 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.15, width: 200, height: 20 },
+                    { x: canvas.width * 0.45, y: canvas.height * 0.4, width: 20, height: 200 },
+                    { x: canvas.width * 0.65, y: canvas.height * 0.25, width: 20, height: 180 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.65, width: 250, height: 20 },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.5, width: 20, height: 150 }
                 ],
                 bookshelves: [
-                    { x: 150, y: 100, width: 60, height: 120 },
-                    { x: 300, y: 250, width: 80, height: 100 },
-                    { x: 500, y: 150, width: 60, height: 120 },
-                    { x: 650, y: 350, width: 70, height: 110 },
-                    { x: 250, y: 450, width: 75, height: 95 },
-                    { x: 700, y: 200, width: 65, height: 105 },
-                    { x: 100, y: 350, width: 70, height: 100 },
-                    { x: 450, y: 400, width: 65, height: 90 },
-                    { x: 350, y: 100, width: 60, height: 95 }
+                    { x: canvas.width * 0.15, y: canvas.height * 0.18, width: 60, height: 120 },
+                    { x: canvas.width * 0.32, y: canvas.height * 0.42, width: 80, height: 100 },
+                    { x: canvas.width * 0.52, y: canvas.height * 0.25, width: 60, height: 120 },
+                    { x: canvas.width * 0.72, y: canvas.height * 0.58, width: 70, height: 110 },
+                    { x: canvas.width * 0.28, y: canvas.height * 0.75, width: 75, height: 95 },
+                    { x: canvas.width * 0.78, y: canvas.height * 0.35, width: 65, height: 105 },
+                    { x: canvas.width * 0.12, y: canvas.height * 0.58, width: 70, height: 100 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.68, width: 65, height: 90 },
+                    { x: canvas.width * 0.4, y: canvas.height * 0.18, width: 60, height: 95 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 1, label: "← Setor 1" },
@@ -771,10 +895,10 @@
                 ],
                 items: [
                     { x: canvas.width / 2, y: canvas.height / 2, type: "code", content: "Código: 4721", code: "4721" },
-                    { x: 450, y: 450, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                    { x: canvas.width * 0.55, y: canvas.height * 0.75, type: "battery", content: "Pilha encontrada! +50% de bateria" }
                 ],
                 chests: [
-                    { x: 250, y: 400, opened: false, content: "secret_door_1" }
+                    { x: canvas.width * 0.3, y: canvas.height * 0.68, opened: false, content: "secret_door_1" }
                 ],
                 secretDoors: [],
                 entitySpawn: true
@@ -786,34 +910,36 @@
                 wallColor: "#1a1a1a",
                 floorColor: "#0a0a0a",
                 walls: [
-                    { x: 250, y: 100, width: 20, height: 200 },
-                    { x: 250, y: 350, width: 20, height: 150 },
-                    { x: 450, y: 100, width: 20, height: 200 },
-                    { x: 450, y: 350, width: 20, height: 150 },
-                    { x: 150, y: 250, width: 150, height: 20 },
-                    { x: 450, y: 250, width: 200, height: 20 }
+                    { x: canvas.width * 0.25, y: canvas.height * 0.15, width: 20, height: 200 },
+                    { x: canvas.width * 0.25, y: canvas.height * 0.55, width: 20, height: 150 },
+                    { x: canvas.width * 0.48, y: canvas.height * 0.15, width: 20, height: 200 },
+                    { x: canvas.width * 0.48, y: canvas.height * 0.55, width: 20, height: 150 },
+                    { x: canvas.width * 0.15, y: canvas.height * 0.4, width: 150, height: 20 },
+                    { x: canvas.width * 0.48, y: canvas.height * 0.4, width: 200, height: 20 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.3, width: 20, height: 180 }
                 ],
                 bookshelves: [
-                    { x: 180, y: 120, width: 70, height: 130 },
-                    { x: 350, y: 280, width: 90, height: 110 },
-                    { x: 520, y: 180, width: 65, height: 125 },
-                    { x: 700, y: 350, width: 75, height: 115 },
-                    { x: 250, y: 450, width: 80, height: 100 },
-                    { x: 600, y: 100, width: 70, height: 110 },
-                    { x: 100, y: 350, width: 65, height: 95 },
-                    { x: 450, y: 450, width: 70, height: 105 },
-                    { x: 300, y: 100, width: 60, height: 90 },
-                    { x: 650, y: 250, width: 75, height: 100 }
+                    { x: canvas.width * 0.18, y: canvas.height * 0.2, width: 70, height: 130 },
+                    { x: canvas.width * 0.38, y: canvas.height * 0.48, width: 90, height: 110 },
+                    { x: canvas.width * 0.56, y: canvas.height * 0.3, width: 65, height: 125 },
+                    { x: canvas.width * 0.78, y: canvas.height * 0.58, width: 75, height: 115 },
+                    { x: canvas.width * 0.28, y: canvas.height * 0.75, width: 80, height: 100 },
+                    { x: canvas.width * 0.68, y: canvas.height * 0.18, width: 70, height: 110 },
+                    { x: canvas.width * 0.12, y: canvas.height * 0.58, width: 65, height: 95 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.75, width: 70, height: 105 },
+                    { x: canvas.width * 0.33, y: canvas.height * 0.18, width: 60, height: 90 },
+                    { x: canvas.width * 0.73, y: canvas.height * 0.42, width: 75, height: 100 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 2, label: "← Setor 2" },
                     { x: canvas.width / 2, y: 50, width: 80, height: 40, locked: true, leadsTo: 4, label: "↑ Setor 4 [CÓDIGO]", requiredCode: "4721" }
                 ],
                 items: [
-                    { x: 300, y: 400, type: "flashlight", content: "Lanterna encontrada! Pressione F para ligar/desligar." }
+                    { x: canvas.width * 0.5, y: canvas.height * 0.5, type: "gun", content: "Pistola encontrada!" },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.68, type: "flashlight", content: "Lanterna encontrada! Pressione F para ligar/desligar." }
                 ],
                 chests: [
-                    { x: 600, y: 250, opened: false, content: "code_8932" }
+                    { x: canvas.width * 0.68, y: canvas.height * 0.42, opened: false, content: "code_8932" }
                 ],
                 secretDoors: [
                     { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: true, leadsTo: 4, label: "→ Porta Secreta", unlockedBy: "secret_door_1" }
@@ -827,38 +953,40 @@
                 wallColor: "#4a0000",
                 floorColor: "#1a0000",
                 walls: [
-                    { x: 150, y: 150, width: 20, height: 100 },
-                    { x: 150, y: 300, width: 20, height: 200 },
-                    { x: 250, y: 200, width: 20, height: 150 },
-                    { x: 350, y: 150, width: 20, height: 100 },
-                    { x: 350, y: 300, width: 20, height: 200 },
-                    { x: 450, y: 200, width: 20, height: 150 },
-                    { x: 550, y: 150, width: 20, height: 100 },
-                    { x: 550, y: 300, width: 20, height: 200 }
+                    { x: canvas.width * 0.18, y: canvas.height * 0.25, width: 20, height: 100 },
+                    { x: canvas.width * 0.18, y: canvas.height * 0.5, width: 20, height: 200 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.33, width: 20, height: 150 },
+                    { x: canvas.width * 0.42, y: canvas.height * 0.25, width: 20, height: 100 },
+                    { x: canvas.width * 0.42, y: canvas.height * 0.5, width: 20, height: 200 },
+                    { x: canvas.width * 0.54, y: canvas.height * 0.33, width: 20, height: 150 },
+                    { x: canvas.width * 0.66, y: canvas.height * 0.25, width: 20, height: 100 },
+                    { x: canvas.width * 0.66, y: canvas.height * 0.5, width: 20, height: 200 },
+                    { x: canvas.width * 0.78, y: canvas.height * 0.33, width: 20, height: 150 }
                 ],
                 bookshelves: [
-                    { x: 120, y: 100, width: 60, height: 140 },
-                    { x: 200, y: 250, width: 80, height: 120 },
-                    { x: 300, y: 150, width: 70, height: 130 },
-                    { x: 400, y: 300, width: 75, height: 125 },
-                    { x: 500, y: 180, width: 65, height: 135 },
-                    { x: 600, y: 400, width: 85, height: 110 },
-                    { x: 700, y: 250, width: 70, height: 120 },
-                    { x: 180, y: 450, width: 75, height: 100 },
-                    { x: 350, y: 450, width: 70, height: 110 },
-                    { x: 520, y: 100, width: 65, height: 95 }
+                    { x: canvas.width * 0.14, y: canvas.height * 0.18, width: 60, height: 140 },
+                    { x: canvas.width * 0.24, y: canvas.height * 0.42, width: 80, height: 120 },
+                    { x: canvas.width * 0.36, y: canvas.height * 0.25, width: 70, height: 130 },
+                    { x: canvas.width * 0.48, y: canvas.height * 0.5, width: 75, height: 125 },
+                    { x: canvas.width * 0.6, y: canvas.height * 0.3, width: 65, height: 135 },
+                    { x: canvas.width * 0.72, y: canvas.height * 0.67, width: 85, height: 110 },
+                    { x: canvas.width * 0.84, y: canvas.height * 0.42, width: 70, height: 120 },
+                    { x: canvas.width * 0.22, y: canvas.height * 0.75, width: 75, height: 100 },
+                    { x: canvas.width * 0.42, y: canvas.height * 0.75, width: 70, height: 110 },
+                    { x: canvas.width * 0.62, y: canvas.height * 0.18, width: 65, height: 95 }
                 ],
                 doors: [
                     { x: canvas.width / 2, y: canvas.height - 50, width: 80, height: 40, locked: false, leadsTo: 3, label: "↓ Setor 3" },
                     { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 5, label: "→ Setor 5" }
                 ],
                 items: [
-                    { x: 350, y: 350, type: "code", content: "Código: 1156", code: "1156" },
-                    { x: 500, y: 150, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                    { x: canvas.width * 0.42, y: canvas.height * 0.58, type: "code", content: "Código: 1156", code: "1156" },
+                    { x: canvas.width * 0.6, y: canvas.height * 0.25, type: "battery", content: "Pilha encontrada! +50% de bateria" },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.6, type: "ammo", content: "Munição encontrada! +15 balas" }
                 ],
                 chests: [
-                    { x: 650, y: 400, opened: false, content: "secret_door_2" },
-                    { x: 200, y: 200, opened: false, content: "code_0000" }
+                    { x: canvas.width * 0.78, y: canvas.height * 0.67, opened: false, content: "secret_door_2" },
+                    { x: canvas.width * 0.24, y: canvas.height * 0.33, opened: false, content: "code_0000" }
                 ],
                 secretDoors: [],
                 entitySpawn: true
@@ -870,34 +998,37 @@
                 wallColor: "#1a1a2a",
                 floorColor: "#0a0a1a",
                 walls: [
-                    { x: 200, y: 150, width: 20, height: 100 },
-                    { x: 200, y: 300, width: 20, height: 150 },
-                    { x: 350, y: 100, width: 20, height: 150 },
-                    { x: 350, y: 300, width: 20, height: 200 },
-                    { x: 500, y: 150, width: 20, height: 100 },
-                    { x: 500, y: 300, width: 20, height: 150 },
-                    { x: 650, y: 100, width: 20, height: 200 },
-                    { x: 150, y: 250, width: 100, height: 20 },
-                    { x: 300, y: 250, width: 100, height: 20 },
-                    { x: 450, y: 250, width: 100, height: 20 }
+                    { x: canvas.width * 0.22, y: canvas.height * 0.25, width: 20, height: 100 },
+                    { x: canvas.width * 0.22, y: canvas.height * 0.5, width: 20, height: 150 },
+                    { x: canvas.width * 0.38, y: canvas.height * 0.17, width: 20, height: 150 },
+                    { x: canvas.width * 0.38, y: canvas.height * 0.5, width: 20, height: 200 },
+                    { x: canvas.width * 0.54, y: canvas.height * 0.25, width: 20, height: 100 },
+                    { x: canvas.width * 0.54, y: canvas.height * 0.5, width: 20, height: 150 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.17, width: 20, height: 200 },
+                    { x: canvas.width * 0.16, y: canvas.height * 0.42, width: 100, height: 20 },
+                    { x: canvas.width * 0.32, y: canvas.height * 0.42, width: 100, height: 20 },
+                    { x: canvas.width * 0.48, y: canvas.height * 0.42, width: 100, height: 20 },
+                    { x: canvas.width * 0.78, y: canvas.height * 0.35, width: 20, height: 180 }
                 ],
                 bookshelves: [
-                    { x: 150, y: 150, width: 70, height: 130 },
-                    { x: 280, y: 300, width: 80, height: 120 },
-                    { x: 430, y: 200, width: 75, height: 125 },
-                    { x: 580, y: 350, width: 85, height: 115 },
-                    { x: 250, y: 450, width: 70, height: 130 },
-                    { x: 450, y: 100, width: 65, height: 110 },
-                    { x: 650, y: 450, width: 75, height: 105 },
-                    { x: 100, y: 350, width: 70, height: 95 },
-                    { x: 550, y: 100, width: 65, height: 100 }
+                    { x: canvas.width * 0.16, y: canvas.height * 0.25, width: 70, height: 130 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.5, width: 80, height: 120 },
+                    { x: canvas.width * 0.46, y: canvas.height * 0.33, width: 75, height: 125 },
+                    { x: canvas.width * 0.62, y: canvas.height * 0.58, width: 85, height: 115 },
+                    { x: canvas.width * 0.28, y: canvas.height * 0.75, width: 70, height: 130 },
+                    { x: canvas.width * 0.48, y: canvas.height * 0.17, width: 65, height: 110 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.75, width: 75, height: 105 },
+                    { x: canvas.width * 0.12, y: canvas.height * 0.58, width: 70, height: 95 },
+                    { x: canvas.width * 0.59, y: canvas.height * 0.17, width: 65, height: 100 },
+                    { x: canvas.width * 0.82, y: canvas.height * 0.58, width: 70, height: 110 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 4, label: "← Setor 4" },
                     { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 6, label: "→ Setor 6" }
                 ],
                 items: [
-                    { x: 400, y: 200, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                    { x: canvas.width * 0.48, y: canvas.height * 0.33, type: "battery", content: "Pilha encontrada! +50% de bateria" },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.6, type: "ammo", content: "Munição encontrada! +15 balas" }
                 ],
                 chests: [
                     { x: canvas.width / 2, y: canvas.height / 2, opened: false, content: "code_7777" }
@@ -914,40 +1045,41 @@
                 wallColor: "#2a002a",
                 floorColor: "#1a001a",
                 walls: [
-                    { x: 180, y: 80, width: 20, height: 120 },
-                    { x: 180, y: 250, width: 20, height: 150 },
-                    { x: 280, y: 150, width: 20, height: 100 },
-                    { x: 280, y: 300, width: 20, height: 180 },
-                    { x: 380, y: 80, width: 20, height: 150 },
-                    { x: 380, y: 280, width: 20, height: 200 },
-                    { x: 480, y: 120, width: 20, height: 120 },
-                    { x: 480, y: 290, width: 20, height: 190 },
-                    { x: 580, y: 80, width: 20, height: 180 },
-                    { x: 580, y: 310, width: 20, height: 170 },
-                    { x: 680, y: 100, width: 20, height: 150 },
-                    { x: 680, y: 300, width: 20, height: 180 }
+                    { x: canvas.width * 0.2, y: canvas.height * 0.13, width: 20, height: 120 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.42, width: 20, height: 150 },
+                    { x: canvas.width * 0.31, y: canvas.height * 0.25, width: 20, height: 100 },
+                    { x: canvas.width * 0.31, y: canvas.height * 0.5, width: 20, height: 180 },
+                    { x: canvas.width * 0.42, y: canvas.height * 0.13, width: 20, height: 150 },
+                    { x: canvas.width * 0.42, y: canvas.height * 0.47, width: 20, height: 200 },
+                    { x: canvas.width * 0.53, y: canvas.height * 0.2, width: 20, height: 120 },
+                    { x: canvas.width * 0.53, y: canvas.height * 0.48, width: 20, height: 190 },
+                    { x: canvas.width * 0.64, y: canvas.height * 0.13, width: 20, height: 180 },
+                    { x: canvas.width * 0.64, y: canvas.height * 0.52, width: 20, height: 170 },
+                    { x: canvas.width * 0.75, y: canvas.height * 0.17, width: 20, height: 150 },
+                    { x: canvas.width * 0.75, y: canvas.height * 0.5, width: 20, height: 180 }
                 ],
                 bookshelves: [
-                    { x: 220, y: 180, width: 60, height: 100 },
-                    { x: 320, y: 250, width: 70, height: 110 },
-                    { x: 420, y: 200, width: 65, height: 120 },
-                    { x: 520, y: 350, width: 75, height: 105 },
-                    { x: 620, y: 450, width: 70, height: 95 },
-                    { x: 120, y: 300, width: 65, height: 100 },
-                    { x: 720, y: 180, width: 70, height: 110 },
-                    { x: 250, y: 450, width: 75, height: 105 },
-                    { x: 450, y: 100, width: 65, height: 95 }
+                    { x: canvas.width * 0.24, y: canvas.height * 0.3, width: 60, height: 100 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.42, width: 70, height: 110 },
+                    { x: canvas.width * 0.46, y: canvas.height * 0.33, width: 65, height: 120 },
+                    { x: canvas.width * 0.57, y: canvas.height * 0.58, width: 75, height: 105 },
+                    { x: canvas.width * 0.68, y: canvas.height * 0.75, width: 70, height: 95 },
+                    { x: canvas.width * 0.13, y: canvas.height * 0.5, width: 65, height: 100 },
+                    { x: canvas.width * 0.79, y: canvas.height * 0.3, width: 70, height: 110 },
+                    { x: canvas.width * 0.28, y: canvas.height * 0.75, width: 75, height: 105 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.17, width: 65, height: 95 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 5, label: "← Setor 5" },
                     { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: true, leadsTo: 7, label: "→ Setor 7 [CÓDIGO]", requiredCode: "1156" }
                 ],
                 items: [
-                    { x: 400, y: 400, type: "code", content: "Código: 9999", code: "9999" },
-                    { x: 550, y: 150, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                    { x: canvas.width * 0.48, y: canvas.height * 0.67, type: "code", content: "Código: 9999", code: "9999" },
+                    { x: canvas.width * 0.61, y: canvas.height * 0.25, type: "battery", content: "Pilha encontrada! +50% de bateria" },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.55, type: "ammo", content: "Munição encontrada! +15 balas" }
                 ],
                 chests: [
-                    { x: 300, y: 200, opened: false, content: "secret_door_3" }
+                    { x: canvas.width * 0.33, y: canvas.height * 0.33, opened: false, content: "secret_door_3" }
                 ],
                 secretDoors: [],
                 entitySpawn: true
@@ -959,39 +1091,42 @@
                 wallColor: "#0a0a0a",
                 floorColor: "#000000",
                 walls: [
-                    { x: 150, y: 100, width: 150, height: 20 },
-                    { x: 150, y: 100, width: 20, height: 150 },
-                    { x: 350, y: 150, width: 20, height: 200 },
-                    { x: 350, y: 150, width: 200, height: 20 },
-                    { x: 530, y: 150, width: 20, height: 250 },
-                    { x: 200, y: 300, width: 180, height: 20 },
-                    { x: 200, y: 300, width: 20, height: 180 },
-                    { x: 400, y: 400, width: 180, height: 20 },
-                    { x: 400, y: 250, width: 20, height: 150 }
+                    { x: canvas.width * 0.17, y: canvas.height * 0.17, width: 150, height: 20 },
+                    { x: canvas.width * 0.17, y: canvas.height * 0.17, width: 20, height: 150 },
+                    { x: canvas.width * 0.38, y: canvas.height * 0.25, width: 20, height: 200 },
+                    { x: canvas.width * 0.38, y: canvas.height * 0.25, width: 200, height: 20 },
+                    { x: canvas.width * 0.58, y: canvas.height * 0.25, width: 20, height: 250 },
+                    { x: canvas.width * 0.22, y: canvas.height * 0.5, width: 180, height: 20 },
+                    { x: canvas.width * 0.22, y: canvas.height * 0.5, width: 20, height: 180 },
+                    { x: canvas.width * 0.44, y: canvas.height * 0.67, width: 180, height: 20 },
+                    { x: canvas.width * 0.44, y: canvas.height * 0.42, width: 20, height: 150 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.35, width: 20, height: 200 }
                 ],
                 bookshelves: [
-                    { x: 250, y: 200, width: 80, height: 120 },
-                    { x: 450, y: 300, width: 75, height: 130 },
-                    { x: 600, y: 250, width: 70, height: 140 },
-                    { x: 300, y: 450, width: 85, height: 110 },
-                    { x: 100, y: 200, width: 70, height: 100 },
-                    { x: 550, y: 450, width: 75, height: 105 },
-                    { x: 180, y: 400, width: 65, height: 95 },
-                    { x: 650, y: 350, width: 70, height: 120 }
+                    { x: canvas.width * 0.28, y: canvas.height * 0.33, width: 80, height: 120 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.5, width: 75, height: 130 },
+                    { x: canvas.width * 0.67, y: canvas.height * 0.42, width: 70, height: 140 },
+                    { x: canvas.width * 0.33, y: canvas.height * 0.75, width: 85, height: 110 },
+                    { x: canvas.width * 0.12, y: canvas.height * 0.33, width: 70, height: 100 },
+                    { x: canvas.width * 0.61, y: canvas.height * 0.75, width: 75, height: 105 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.67, width: 65, height: 95 },
+                    { x: canvas.width * 0.72, y: canvas.height * 0.58, width: 70, height: 120 },
+                    { x: canvas.width * 0.78, y: canvas.height * 0.25, width: 65, height: 110 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 6, label: "← Setor 6" },
                     { x: canvas.width / 2, y: 50, width: 80, height: 40, locked: true, leadsTo: 8, label: "↑ Setor 8 [3 CÓDIGOS]", requiredCodes: 3 }
                 ],
                 items: [
-                    { x: 350, y: 350, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                    { x: canvas.width * 0.39, y: canvas.height * 0.58, type: "battery", content: "Pilha encontrada! +50% de bateria" },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.35, type: "ammo", content: "Munição encontrada! +15 balas" }
                 ],
                 chests: [
-                    { x: 450, y: 450, opened: false, content: "code_3333" },
-                    { x: 250, y: 150, opened: false, content: "secret_door_4" }
+                    { x: canvas.width * 0.5, y: canvas.height * 0.75, opened: false, content: "code_3333" },
+                    { x: canvas.width * 0.28, y: canvas.height * 0.25, opened: false, content: "secret_door_4" }
                 ],
                 secretDoors: [
-                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: true, leadsTo: 8, label: "→ Atalho Final", unlockedBy: "secret_door_3" }
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: true, leadsTo: 8, label: "→ Saída Secreta", unlockedBy: "secret_door_3" }
                 ],
                 entitySpawn: true
             },
@@ -1002,32 +1137,34 @@
                 wallColor: "#1a0000",
                 floorColor: "#0a0000",
                 walls: [
-                    { x: 250, y: 150, width: 300, height: 20 },
-                    { x: 250, y: 150, width: 20, height: 300 },
-                    { x: 530, y: 150, width: 20, height: 300 },
-                    { x: 250, y: 430, width: 300, height: 20 },
-                    { x: 350, y: 250, width: 100, height: 20 },
-                    { x: 350, y: 250, width: 20, height: 100 },
-                    { x: 430, y: 250, width: 20, height: 100 },
-                    { x: 350, y: 330, width: 100, height: 20 }
+                    { x: canvas.width * 0.28, y: canvas.height * 0.25, width: 300, height: 20 },
+                    { x: canvas.width * 0.28, y: canvas.height * 0.25, width: 20, height: 300 },
+                    { x: canvas.width * 0.59, y: canvas.height * 0.25, width: 20, height: 300 },
+                    { x: canvas.width * 0.28, y: canvas.height * 0.72, width: 300, height: 20 },
+                    { x: canvas.width * 0.39, y: canvas.height * 0.42, width: 100, height: 20 },
+                    { x: canvas.width * 0.39, y: canvas.height * 0.42, width: 20, height: 100 },
+                    { x: canvas.width * 0.48, y: canvas.height * 0.42, width: 20, height: 100 },
+                    { x: canvas.width * 0.39, y: canvas.height * 0.55, width: 100, height: 20 },
+                    { x: canvas.width * 0.65, y: canvas.height * 0.35, width: 20, height: 150 }
                 ],
                 bookshelves: [
-                    { x: 200, y: 200, width: 60, height: 100 },
-                    { x: 600, y: 200, width: 60, height: 100 },
-                    { x: 200, y: 400, width: 60, height: 100 },
-                    { x: 600, y: 400, width: 60, height: 100 },
-                    { x: 400, y: 500, width: 70, height: 90 },
-                    { x: 300, y: 100, width: 65, height: 95 },
-                    { x: 500, y: 100, width: 65, height: 95 },
-                    { x: 100, y: 300, width: 70, height: 100 },
-                    { x: 700, y: 300, width: 70, height: 100 }
+                    { x: canvas.width * 0.22, y: canvas.height * 0.33, width: 60, height: 100 },
+                    { x: canvas.width * 0.67, y: canvas.height * 0.33, width: 60, height: 100 },
+                    { x: canvas.width * 0.22, y: canvas.height * 0.67, width: 60, height: 100 },
+                    { x: canvas.width * 0.67, y: canvas.height * 0.67, width: 60, height: 100 },
+                    { x: canvas.width * 0.44, y: canvas.height * 0.83, width: 70, height: 90 },
+                    { x: canvas.width * 0.33, y: canvas.height * 0.17, width: 65, height: 95 },
+                    { x: canvas.width * 0.56, y: canvas.height * 0.17, width: 65, height: 95 },
+                    { x: canvas.width * 0.11, y: canvas.height * 0.5, width: 70, height: 100 },
+                    { x: canvas.width * 0.78, y: canvas.height * 0.5, width: 70, height: 100 }
                 ],
                 doors: [
                     { x: canvas.width / 2, y: canvas.height - 50, width: 80, height: 40, locked: false, leadsTo: 7, label: "↓ Setor 7" },
                     { x: canvas.width / 2, y: 50, width: 80, height: 40, locked: true, leadsTo: "exit", label: "↑ SAÍDA [6 CÓDIGOS]", requiredCodes: 6 }
                 ],
                 items: [
-                    { x: 300, y: 300, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                    { x: canvas.width * 0.33, y: canvas.height * 0.5, type: "battery", content: "Pilha encontrada! +50% de bateria" },
+                    { x: canvas.width * 0.6, y: canvas.height * 0.5, type: "ammo", content: "Munição encontrada! +15 balas" }
                 ],
                 chests: [
                     { x: canvas.width / 2, y: canvas.height / 2, opened: false, content: "final_key" }
@@ -1081,6 +1218,19 @@
             }
         }
 
+        function updateFlashlightBattery() {
+            if (game.flashlightOn && game.currentLevel >= 3) {
+                game.flashlightBattery -= 0.1; // Consumo lento da bateria
+                if (game.flashlightBattery <= 0) {
+                    game.flashlightOn = false;
+                    game.flashlightBattery = 0;
+                    updateFlashlight();
+                    showMessage("A bateria da lanterna acabou!");
+                }
+                document.getElementById('battery-level').textContent = Math.floor(game.flashlightBattery);
+            }
+        }
+
         // ==================== FUNÇÕES DO JOGO ====================
         function startGame() {
             document.getElementById('start-screen').style.display = 'none';
@@ -1095,6 +1245,11 @@
             game.flashlightBattery = 100;
             game.secretDoorsUnlocked = [];
             game.deathLocation = null;
+            game.currentStamina = 100;
+            game.isRunning = false;
+            game.hasGun = false;
+            game.ammo = 0;
+            game.bullets = [];
             player.x = canvas.width / 2;
             player.y = canvas.height / 2;
             entity.active = false;
@@ -1109,7 +1264,7 @@
             game.state = 'gameover';
             
             // Salvar localização da morte e itens (exceto códigos)
-            const droppedItems = game.inventory.filter(item => !item.startsWith('Código:'));
+            const droppedItems = game.inventory.filter(item => !item.startsWith('Código:') && !item.startsWith('Pistola') && !item.startsWith('Lanterna'));
             
             if (droppedItems.length > 0) {
                 game.deathLocation = {
@@ -1119,8 +1274,14 @@
                     items: [...droppedItems]
                 };
                 
-                // Remover itens dropados do inventário (manter códigos)
-                game.inventory = game.inventory.filter(item => item.startsWith('Código:'));
+                // Remover itens dropados do inventário (manter códigos, pistola e lanterna)
+                game.inventory = game.inventory.filter(item => 
+                    item.startsWith('Código:') || 
+                    item.startsWith('Pistola') || 
+                    item.startsWith('Lanterna') || 
+                    item.startsWith('Chave:') || 
+                    item.startsWith('Chave Final')
+                );
                 updateInventory();
             }
             
@@ -1250,6 +1411,21 @@
                         showMessage(item.content);
                         updateHUD();
                         level.items.splice(index, 1);
+                    } else if (item.type === "gun") {
+                        if (!game.hasGun) {
+                            game.hasGun = true;
+                            game.ammo += 10; // Pistola vem com 10 balas
+                            game.inventory.push("Pistola");
+                            showMessage("Pistola encontrada! Clique para atirar nos fantasmas. +10 balas");
+                            updateInventory();
+                            updateHUD();
+                            level.items.splice(index, 1);
+                        }
+                    } else if (item.type === "ammo") {
+                        game.ammo += 15;
+                        showMessage("Munição encontrada! +15 balas");
+                        updateHUD();
+                        level.items.splice(index, 1);
                     } else if (item.type === "note") {
                         showMessage(item.content, 5000);
                     }
@@ -1274,8 +1450,6 @@
             
             player.x = spawnPositions[newLevel].x;
             player.y = spawnPositions[newLevel].y;
-            
-            console.log("[v0] Mudou para nível:", newLevel, "Posição do jogador:", player.x, player.y);
             
             if (levels[newLevel].entitySpawn && !entity.active) {
                 entity.active = true;
@@ -1313,7 +1487,6 @@
                     newX - player.size < shelf.x + shelf.width &&
                     newY + player.size > shelf.y &&
                     newY - player.size < shelf.y + shelf.height) {
-                    console.log("[v0] Colisão com estante detectada em:", newX, newY);
                     return true;
                 }
             }
@@ -1341,23 +1514,31 @@
                 player.direction = 'right';
             }
             
-            if (dx !== 0 || dy !== 0) {
-                console.log("[v0] Tentando mover. dx:", dx, "dy:", dy, "Posição atual:", player.x, player.y);
-            }
-            
             if (dx !== 0 && dy !== 0) {
                 dx *= 0.707;
                 dy *= 0.707;
             }
             
-            const newX = player.x + dx * player.speed;
-            const newY = player.y + dy * player.speed;
+            let currentSpeed = player.speed;
+            game.isRunning = false;
+            
+            if (keys['shift'] && (dx !== 0 || dy !== 0) && game.currentStamina > 0) {
+                currentSpeed = player.runSpeed;
+                game.isRunning = true;
+                game.currentStamina -= 0.5; // Consome estamina ao correr
+                if (game.currentStamina < 0) game.currentStamina = 0;
+            } else if (!game.isRunning && game.currentStamina < game.maxStamina) {
+                // Regenera estamina quando não está correndo
+                game.currentStamina += game.staminaRegenRate;
+                if (game.currentStamina > game.maxStamina) game.currentStamina = game.maxStamina;
+            }
+            
+            const newX = player.x + dx * currentSpeed;
+            const newY = player.y + dy * currentSpeed;
             
             if (!checkBookshelfCollision(newX, newY) && !checkWallCollision(newX, newY)) {
                 player.x = newX;
                 player.y = newY;
-            } else {
-                console.log("[v0] Movimento bloqueado por colisão");
             }
             
             player.x = Math.max(player.size + 20, Math.min(canvas.width - player.size - 20, player.x));
@@ -1365,6 +1546,69 @@
             
             if (dx !== 0 || dy !== 0) {
                 player.angle = Math.atan2(dy, dx);
+            }
+        }
+
+        function updateBullets() {
+            const level = levels[game.currentLevel];
+            
+            for (let i = game.bullets.length - 1; i >= 0; i--) {
+                const bullet = game.bullets[i];
+                bullet.x += bullet.vx;
+                bullet.y += bullet.vy;
+                
+                // Remover bala se sair da tela
+                if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
+                    game.bullets.splice(i, 1);
+                    continue;
+                }
+                
+                // Verificar colisão com paredes
+                let hitWall = false;
+                if (level.walls) {
+                    for (let wall of level.walls) {
+                        if (bullet.x > wall.x && bullet.x < wall.x + wall.width &&
+                            bullet.y > wall.y && bullet.y < wall.y + wall.height) {
+                            hitWall = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // Verificar colisão com estantes
+                if (!hitWall && level.bookshelves) {
+                    for (let shelf of level.bookshelves) {
+                        if (bullet.x > shelf.x && bullet.x < shelf.x + shelf.width &&
+                            bullet.y > shelf.y && bullet.y < shelf.y + shelf.height) {
+                            hitWall = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (hitWall) {
+                    game.bullets.splice(i, 1);
+                    continue;
+                }
+                
+                // Verificar colisão com entidade
+                if (entity.active) {
+                    const dist = Math.hypot(bullet.x - entity.x, bullet.y - entity.y);
+                    if (dist < entity.size) {
+                        // Acertou o fantasma! Reposicionar longe
+                        entity.x = Math.random() * canvas.width;
+                        entity.y = Math.random() * canvas.height;
+                        
+                        // Garantir que não spawne perto do jogador
+                        while (Math.hypot(player.x - entity.x, player.y - entity.y) < 300) {
+                            entity.x = Math.random() * canvas.width;
+                            entity.y = Math.random() * canvas.height;
+                        }
+                        
+                        game.bullets.splice(i, 1);
+                        showMessage("Você acertou o fantasma! Ele foi repelido.");
+                    }
+                }
             }
         }
 
@@ -1390,17 +1634,45 @@
             }
         }
 
-        function updateFlashlightBattery() {
-            if (game.flashlightOn && game.flashlightBattery > 0) {
-                game.flashlightBattery -= 0.05;
-                document.getElementById('battery-level').textContent = Math.floor(game.flashlightBattery);
+        function getRandomValidPosition(level) {
+            let x, y;
+            let attempts = 0;
+            const maxAttempts = 100;
+            
+            do {
+                x = Math.random() * (canvas.width - 100) + 50;
+                y = Math.random() * (canvas.height - 100) + 50;
+                attempts++;
                 
-                if (game.flashlightBattery <= 0) {
-                    game.flashlightOn = false;
-                    updateFlashlight();
-                    showMessage("A bateria da lanterna acabou!");
+                // Verificar se não colide com paredes
+                let valid = true;
+                if (level.walls) {
+                    for (let wall of level.walls) {
+                        if (x > wall.x - 30 && x < wall.x + wall.width + 30 &&
+                            y > wall.y - 30 && y < wall.y + wall.height + 30) {
+                            valid = false;
+                            break;
+                        }
+                    }
                 }
-            }
+                
+                // Verificar se não colide com estantes
+                if (valid && level.bookshelves) {
+                    for (let shelf of level.bookshelves) {
+                        if (x > shelf.x - 30 && x < shelf.x + shelf.width + 30 &&
+                            y > shelf.y - 30 && y < shelf.y + shelf.height + 30) {
+                            valid = false;
+                            break;
+                        }
+                    }
+                }
+                
+                if (valid) return { x, y };
+                
+            } while (attempts < maxAttempts);
+            
+            // Se não encontrar posição válida, retornar posição padrão
+            return { x: canvas.width * 0.5, y: canvas.height * 0.5 };
         }
 
         // ==================== RENDERIZAÇÃO ====================
@@ -1411,16 +1683,69 @@
             ctx.fillStyle = level.bgColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Efeito de textura no chão (madeira)
-            ctx.fillStyle = level.floorColor;
-            for (let i = 0; i < 100; i++) {
-                ctx.fillRect(
-                    Math.random() * canvas.width,
-                    Math.random() * canvas.height,
-                    Math.random() * 10 + 5,
-                    2
-                );
+            // Tábuas de madeira horizontais
+            ctx.fillStyle = '#4a3520';
+            for (let y = 0; y < canvas.height; y += 40) {
+                ctx.fillRect(0, y, canvas.width, 35);
             }
+            
+            // Textura de madeira (veios e variações) - FIXOS
+            ctx.fillStyle = '#3a2510';
+            for (let y = 0; y < canvas.height; y += 40) {
+                // Linhas entre tábuas
+                ctx.fillRect(0, y + 35, canvas.width, 5);
+                
+                // Veios da madeira - usando posição como seed para padrão fixo
+                for (let i = 0; i < 20; i++) {
+                    const x = (i * 137 + y * 13) % canvas.width; // padrão fixo baseado em posição
+                    const width = ((i * 17 + y * 7) % 20) + 10; // largura fixa baseada em posição
+                    ctx.fillRect(x, y + ((i * 11) % 30), width, 2);
+                }
+            }
+            
+            // Variações de cor nas tábuas - FIXAS
+            ctx.fillStyle = '#5a4530';
+            for (let y = 0; y < canvas.height; y += 40) {
+                for (let i = 0; i < 10; i++) {
+                    const x = (i * 173 + y * 19) % canvas.width; // padrão fixo
+                    const width = ((i * 23 + y * 11) % 15) + 5; // largura fixa
+                    const height = ((i * 13 + y * 7) % 8) + 5; // altura fixa
+                    ctx.fillRect(x, y + ((i * 17) % 30), width, height);
+                }
+            }
+            
+            // Teias nos cantos da tela
+            drawSpiderweb(80, 80, 60);
+            drawSpiderweb(canvas.width - 80, 80, 60);
+            drawSpiderweb(80, canvas.height - 80, 60);
+            drawSpiderweb(canvas.width - 80, canvas.height - 80, 60);
+            
+            // Usar o número do nível como seed para gerar posições consistentes
+            const skullCount = 6;
+            for (let i = 0; i < skullCount; i++) {
+                // Gerar posição pseudo-aleatória baseada no nível e índice
+                const seedX = (game.currentLevel * 1000 + i * 137) % canvas.width;
+                const seedY = (game.currentLevel * 1500 + i * 173) % canvas.height;
+                
+                // Ajustar para evitar bordas
+                const skullX = Math.max(100, Math.min(canvas.width - 100, seedX));
+                const skullY = Math.max(100, Math.min(canvas.height - 100, seedY));
+                
+                drawSkull(skullX, skullY);
+            }
+            
+            // Abóboras em posições fixas
+            const pumpkinPositions = [
+                { x: canvas.width * 0.2, y: canvas.height * 0.15 },
+                { x: canvas.width * 0.8, y: canvas.height * 0.25 },
+                { x: canvas.width * 0.3, y: canvas.height * 0.85 },
+                { x: canvas.width * 0.7, y: canvas.height * 0.75 },
+                { x: canvas.width * 0.5, y: canvas.height * 0.1 }
+            ];
+            
+            pumpkinPositions.forEach(pos => {
+                drawPumpkin(pos.x, pos.y);
+            });
             
             // Paredes externas
             ctx.fillStyle = level.wallColor;
@@ -1525,6 +1850,23 @@
                     ctx.font = 'bold 10px Courier New';
                     ctx.textAlign = 'center';
                     ctx.fillText('+', item.x, item.y + 3);
+                } else if (item.type === "gun") {
+                    ctx.fillStyle = '#4a4a4a';
+                    ctx.fillRect(item.x - 12, item.y - 6, 24, 12);
+                    ctx.fillStyle = '#2a2a2a';
+                    ctx.fillRect(item.x + 8, item.y - 4, 8, 8);
+                    ctx.fillStyle = '#8b4513';
+                    ctx.fillRect(item.x - 8, item.y - 4, 8, 8);
+                } else if (item.type === "ammo") {
+                    ctx.fillStyle = '#ffa500';
+                    ctx.fillRect(item.x - 6, item.y - 10, 12, 20);
+                    ctx.fillStyle = '#ff8800';
+                    ctx.fillRect(item.x - 4, item.y - 12, 8, 4);
+                    
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 10px Courier New';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('A', item.x, item.y + 3);
                 } else if (item.type === "note") {
                     ctx.fillStyle = '#fff';
                     ctx.fillRect(item.x - 10, item.y - 15, 20, 30);
@@ -1552,11 +1894,55 @@
                 }
             }
             
+            ctx.fillStyle = '#ffff00';
+            game.bullets.forEach(bullet => {
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, bullet.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
             if (entity.active) {
                 drawEntity(entity.x, entity.y);
             }
             
             drawPlayer(player.x, player.y);
+            
+            const staminaBarWidth = 200;
+            const staminaBarHeight = 20;
+            const staminaBarX = canvas.width / 2 - staminaBarWidth / 2;
+            const staminaBarY = canvas.height - 50;
+            
+            // Fundo da barra
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(staminaBarX - 5, staminaBarY - 5, staminaBarWidth + 10, staminaBarHeight + 10);
+            
+            // Barra de estamina
+            const staminaPercent = game.currentStamina / game.maxStamina;
+            ctx.fillStyle = staminaPercent > 0.3 ? '#00ff00' : '#ff0000';
+            ctx.fillRect(staminaBarX, staminaBarY, staminaBarWidth * staminaPercent, staminaBarHeight);
+            
+            // Borda
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(staminaBarX, staminaBarY, staminaBarWidth, staminaBarHeight);
+            
+            // Texto
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px Courier New';
+            ctx.textAlign = 'center';
+            ctx.fillText('ESTAMINA [SHIFT]', canvas.width / 2, staminaBarY - 10);
+            
+            if (game.hasGun) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(canvas.width - 150, canvas.height - 80, 130, 60);
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 16px Courier New';
+                ctx.textAlign = 'left';
+                ctx.fillText('🔫 PISTOLA', canvas.width - 140, canvas.height - 55);
+                ctx.font = '20px Courier New';
+                ctx.fillText(`Munição: ${game.ammo}`, canvas.width - 140, canvas.height - 30);
+            }
             
             if ((!game.flashlightOn || game.flashlightBattery <= 0) && game.currentLevel >= 3) {
                 const overlay = document.getElementById('flashlight-overlay');
@@ -1570,6 +1956,7 @@
             
             updatePlayer();
             updateEntity();
+            updateBullets();
             updateFlashlightBattery();
             render();
             
@@ -1650,6 +2037,8 @@
             
             player.x = spawnPositions[game.currentLevel].x;
             player.y = spawnPositions[game.currentLevel].y;
+            
+            game.currentStamina = game.maxStamina;
             
             // Reposicionar entidade longe do jogador
             entity.x = Math.random() * canvas.width;
