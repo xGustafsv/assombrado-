@@ -446,12 +446,14 @@
             isRunning: false,
             hasGun: false,
             ammo: 0,
-            bullets: [] // array de projéteis ativos
+            bullets: [], // array de projéteis ativos
+            hasDetector: false,
+            detectorCooldown: 0
         };
 
         const player = {
-            x: canvas.width / 2,
-            y: canvas.height / 2,
+            x: 100,
+            y: 100,
             size: 16,
             speed: 4.5,
             runSpeed: 7.5,
@@ -832,6 +834,74 @@
             ctx.fillRect(x + pixelSize, y + 2 * pixelSize, pixelSize, 2 * pixelSize);
         }
 
+        function drawDetector(x, y) {
+            const pixelSize = 2;
+            
+            // Corpo do detector (cinza metálico)
+            ctx.fillStyle = '#808080';
+            ctx.fillRect(x - 6 * pixelSize, y - 8 * pixelSize, 12 * pixelSize, 16 * pixelSize);
+            
+            // Tela do detector (verde)
+            ctx.fillStyle = '#00ff00';
+            ctx.fillRect(x - 4 * pixelSize, y - 6 * pixelSize, 8 * pixelSize, 8 * pixelSize);
+            
+            // Detalhes metálicos
+            ctx.fillStyle = '#606060';
+            ctx.fillRect(x - 5 * pixelSize, y - 7 * pixelSize, 10 * pixelSize, pixelSize);
+            ctx.fillRect(x - 5 * pixelSize, y + 2 * pixelSize, 10 * pixelSize, pixelSize);
+            
+            // Antena
+            ctx.fillStyle = '#404040';
+            ctx.fillRect(x - pixelSize, y - 10 * pixelSize, 2 * pixelSize, 3 * pixelSize);
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(x - pixelSize, y - 11 * pixelSize, 2 * pixelSize, 2 * pixelSize);
+            
+            // Efeito de brilho pulsante
+            const pulse = Math.sin(Date.now() / 300) * 0.3 + 0.7;
+            ctx.shadowBlur = 8 * pulse;
+            ctx.shadowColor = '#00ff00';
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x - 7 * pixelSize, y - 9 * pixelSize, 14 * pixelSize, 18 * pixelSize);
+            ctx.shadowBlur = 0;
+        }
+
+        function showGhostAlert(hasGhost) {
+            const alertDiv = document.createElement('div');
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '50%';
+            alertDiv.style.left = '50%';
+            alertDiv.style.transform = 'translate(-50%, -50%)';
+            alertDiv.style.padding = '40px 60px';
+            alertDiv.style.fontSize = '2rem';
+            alertDiv.style.fontWeight = 'bold';
+            alertDiv.style.zIndex = '300';
+            alertDiv.style.textAlign = 'center';
+            alertDiv.style.fontFamily = 'Courier New, monospace';
+            alertDiv.style.border = '4px solid';
+            alertDiv.style.animation = 'fadeIn 0.3s';
+            
+            if (hasGhost) {
+                alertDiv.style.background = 'rgba(255, 0, 0, 0.95)';
+                alertDiv.style.color = '#fff';
+                alertDiv.style.borderColor = '#ff0000';
+                alertDiv.style.textShadow = '0 0 20px #ff0000';
+                alertDiv.innerHTML = '⚠️ PERIGO!<br>FANTASMA DETECTADO<br>NO PRÓXIMO SETOR!';
+            } else {
+                alertDiv.style.background = 'rgba(0, 255, 0, 0.95)';
+                alertDiv.style.color = '#000';
+                alertDiv.style.borderColor = '#00ff00';
+                alertDiv.style.textShadow = '0 0 10px #00ff00';
+                alertDiv.innerHTML = '✓ SEGURO<br>NENHUM FANTASMA<br>DETECTADO';
+            }
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
         // ==================== DEFINIÇÃO DOS NÍVEIS ====================
         const levels = {
             1: {
@@ -840,29 +910,33 @@
                 bgColor: "#2a1a1a",
                 wallColor: "#4a2a1a",
                 floorColor: "#3a2a1a",
-                /* Removendo paredes */
                 walls: [],
-                /* Reorganizando estantes para formar corredores */
                 bookshelves: [
-                    // Corredor vertical esquerdo
-                    { x: canvas.width * 0.15, y: canvas.height * 0.1, width: 80, height: 150 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.35, width: 80, height: 150 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.6, width: 80, height: 150 },
+                    // Labirinto complexo com múltiplos caminhos
+                    // Parede superior
+                    { x: canvas.width * 0.15, y: canvas.height * 0.08, width: 150, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.08, width: 120, height: 80 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.08, width: 150, height: 80 },
+                    { x: canvas.width * 0.75, y: canvas.height * 0.08, width: 120, height: 80 },
                     
-                    // Corredor horizontal superior
-                    { x: canvas.width * 0.3, y: canvas.height * 0.2, width: 150, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.2, width: 150, height: 80 },
+                    // Corredores verticais e horizontais entrelaçados
+                    { x: canvas.width * 0.12, y: canvas.height * 0.22, width: 80, height: 150 },
+                    { x: canvas.width * 0.12, y: canvas.height * 0.5, width: 80, height: 180 },
                     
-                    // Corredor vertical central
-                    { x: canvas.width * 0.45, y: canvas.height * 0.4, width: 80, height: 150 },
-                    { x: canvas.width * 0.45, y: canvas.height * 0.65, width: 80, height: 120 },
+                    { x: canvas.width * 0.25, y: canvas.height * 0.25, width: 120, height: 80 },
+                    { x: canvas.width * 0.25, y: canvas.height * 0.45, width: 80, height: 120 },
+                    { x: canvas.width * 0.25, y: canvas.height * 0.7, width: 120, height: 80 },
                     
-                    // Corredor horizontal inferior
-                    { x: canvas.width * 0.65, y: canvas.height * 0.5, width: 150, height: 80 },
+                    { x: canvas.width * 0.42, y: canvas.height * 0.2, width: 80, height: 180 },
+                    { x: canvas.width * 0.42, y: canvas.height * 0.55, width: 80, height: 200 },
                     
-                    // Corredor vertical direito
-                    { x: canvas.width * 0.75, y: canvas.height * 0.15, width: 80, height: 150 },
-                    { x: canvas.width * 0.75, y: canvas.height * 0.65, width: 80, height: 150 }
+                    { x: canvas.width * 0.55, y: canvas.height * 0.3, width: 150, height: 80 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.5, width: 120, height: 80 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.7, width: 150, height: 80 },
+                    
+                    { x: canvas.width * 0.72, y: canvas.height * 0.18, width: 80, height: 150 },
+                    { x: canvas.width * 0.72, y: canvas.height * 0.45, width: 80, height: 120 },
+                    { x: canvas.width * 0.72, y: canvas.height * 0.72, width: 80, height: 150 }
                 ],
                 doors: [
                     { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 2, label: "→ Setor 2" }
@@ -872,7 +946,8 @@
                     { x: canvas.width * 0.75, y: canvas.height * 0.55, type: "battery", content: "Pilha encontrada! +50% de bateria" }
                 ],
                 chests: [],
-                entitySpawn: false
+                entitySpawn: false,
+                detector: { x: canvas.width * 0.18, y: canvas.height * 0.15 }
             },
             2: {
                 name: "Corredor dos Livros Antigos",
@@ -880,21 +955,30 @@
                 bgColor: "#1a1a1a",
                 wallColor: "#2a2a2a",
                 floorColor: "#1a1a1a",
-                /* Removendo paredes */
                 walls: [],
-                /* Reorganizando estantes para formar corredores em labirinto */
                 bookshelves: [
-                    // Labirinto complexo
-                    { x: canvas.width * 0.1, y: canvas.height * 0.15, width: 80, height: 200 },
-                    { x: canvas.width * 0.25, y: canvas.height * 0.1, width: 150, height: 80 },
-                    { x: canvas.width * 0.25, y: canvas.height * 0.4, width: 80, height: 180 },
-                    { x: canvas.width * 0.4, y: canvas.height * 0.25, width: 120, height: 80 },
-                    { x: canvas.width * 0.4, y: canvas.height * 0.6, width: 150, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.15, width: 80, height: 150 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.5, width: 80, height: 200 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.3, width: 120, height: 80 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.65, width: 80, height: 150 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.7, width: 150, height: 80 }
+                    // Entrada lateral esquerda (livre para spawn)
+                    { x: canvas.width * 0.2, y: canvas.height * 0.1, width: 100, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.1, width: 120, height: 80 },
+                    
+                    // Labirinto de estantes - corredor sinuoso
+                    { x: canvas.width * 0.15, y: canvas.height * 0.25, width: 80, height: 150 },
+                    { x: canvas.width * 0.15, y: canvas.height * 0.55, width: 80, height: 180 },
+                    
+                    { x: canvas.width * 0.3, y: canvas.height * 0.3, width: 150, height: 80 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.5, width: 120, height: 80 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.7, width: 150, height: 80 },
+                    
+                    { x: canvas.width * 0.5, y: canvas.height * 0.15, width: 80, height: 180 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.45, width: 80, height: 150 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.7, width: 80, height: 120 },
+                    
+                    { x: canvas.width * 0.65, y: canvas.height * 0.2, width: 120, height: 80 },
+                    { x: canvas.width * 0.65, y: canvas.height * 0.4, width: 150, height: 80 },
+                    { x: canvas.width * 0.65, y: canvas.height * 0.6, width: 100, height: 80 },
+                    
+                    { x: canvas.width * 0.78, y: canvas.height * 0.25, width: 80, height: 200 },
+                    { x: canvas.width * 0.78, y: canvas.height * 0.6, width: 80, height: 150 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 1, label: "← Setor 1" },
@@ -915,21 +999,30 @@
                 bgColor: "#0a0a0a",
                 wallColor: "#1a1a1a",
                 floorColor: "#0a0a0a",
-                /* Removendo paredes */
                 walls: [],
-                /* Reorganizando estantes para formar corredores */
                 bookshelves: [
-                    // Padrão de grade com passagens
-                    { x: canvas.width * 0.2, y: canvas.height * 0.15, width: 100, height: 80 },
-                    { x: canvas.width * 0.2, y: canvas.height * 0.4, width: 100, height: 80 },
-                    { x: canvas.width * 0.2, y: canvas.height * 0.65, width: 100, height: 80 },
+                    // Área de spawn livre no canto superior esquerdo
+                    { x: canvas.width * 0.25, y: canvas.height * 0.08, width: 150, height: 80 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.08, width: 120, height: 80 },
                     
-                    { x: canvas.width * 0.45, y: canvas.height * 0.15, width: 100, height: 80 },
-                    { x: canvas.width * 0.45, y: canvas.height * 0.65, width: 100, height: 80 },
+                    // Estantes formando corredores escuros
+                    { x: canvas.width * 0.15, y: canvas.height * 0.22, width: 80, height: 150 },
+                    { x: canvas.width * 0.15, y: canvas.height * 0.48, width: 80, height: 180 },
+                    { x: canvas.width * 0.15, y: canvas.height * 0.75, width: 80, height: 100 },
                     
-                    { x: canvas.width * 0.7, y: canvas.height * 0.15, width: 100, height: 80 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.4, width: 100, height: 80 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.65, width: 100, height: 80 }
+                    { x: canvas.width * 0.32, y: canvas.height * 0.25, width: 120, height: 80 },
+                    { x: canvas.width * 0.32, y: canvas.height * 0.42, width: 150, height: 80 },
+                    { x: canvas.width * 0.32, y: canvas.height * 0.6, width: 120, height: 80 },
+                    { x: canvas.width * 0.32, y: canvas.height * 0.78, width: 150, height: 80 },
+                    
+                    { x: canvas.width * 0.55, y: canvas.height * 0.2, width: 80, height: 180 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.5, width: 80, height: 150 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.75, width: 80, height: 120 },
+                    
+                    { x: canvas.width * 0.7, y: canvas.height * 0.15, width: 120, height: 80 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.35, width: 100, height: 80 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.55, width: 120, height: 80 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.72, width: 100, height: 80 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 2, label: "← Setor 2" },
@@ -950,9 +1043,8 @@
                 bgColor: "#1a0a0a",
                 wallColor: "#2a1a1a",
                 floorColor: "#1a0a0a",
-                /* Removendo paredes */
                 walls: [],
-                /* Reorganizando estantes para formar corredores em espiral */
+                // Reorganizando estantes para formar corredores em espiral
                 bookshelves: [
                     // Espiral de estantes
                     { x: canvas.width * 0.15, y: canvas.height * 0.2, width: 150, height: 80 },
@@ -973,6 +1065,8 @@
                 ],
                 chests: [],
                 entitySpawn: true,
+                /* Pistola aparece no centro do setor 3 */
+                gun: { x: canvas.width * 0.5, y: canvas.height * 0.5 },
                 /* Munição no setor 4 */
                 ammo: { x: canvas.width * 0.25, y: canvas.height * 0.4 }
             },
@@ -982,9 +1076,8 @@
                 bgColor: "#0a0a1a",
                 wallColor: "#1a1a2a",
                 floorColor: "#0a0a1a",
-                /* Removendo paredes */
                 walls: [],
-                /* Reorganizando estantes para formar corredores em cruz */
+                // Reorganizando estantes para formar corredores em cruz
                 bookshelves: [
                     // Padrão em cruz
                     { x: canvas.width * 0.3, y: canvas.height * 0.15, width: 80, height: 150 },
@@ -1015,9 +1108,8 @@
                 bgColor: "#1a1a0a",
                 wallColor: "#2a2a1a",
                 floorColor: "#1a1a0a",
-                /* Removendo paredes */
                 walls: [],
-                /* Reorganizando estantes para formar corredores longos */
+                // Reorganizando estantes para formar corredores longos
                 bookshelves: [
                     // Corredores paralelos longos
                     { x: canvas.width * 0.2, y: canvas.height * 0.1, width: 80, height: 250 },
@@ -1051,9 +1143,8 @@
                 bgColor: "#0a1a1a",
                 wallColor: "#1a2a2a",
                 floorColor: "#0a1a1a",
-                /* Removendo paredes */
                 walls: [],
-                /* Reorganizando estantes para formar corredores em zigue-zague */
+                // Reorganizando estantes para formar corredores em zigue-zague
                 bookshelves: [
                     // Padrão zigue-zague
                     { x: canvas.width * 0.15, y: canvas.height * 0.15, width: 120, height: 80 },
@@ -1086,9 +1177,8 @@
                 bgColor: "#1a1a1a",
                 wallColor: "#2a2a2a",
                 floorColor: "#1a1a1a",
-                /* Removendo paredes */
                 walls: [],
-                /* Reorganizando estantes para formar corredor final */
+                // Reorganizando estantes para formar corredor final
                 bookshelves: [
                     // Corredor final simples
                     { x: canvas.width * 0.2, y: canvas.height * 0.2, width: 80, height: 200 },
@@ -1184,8 +1274,10 @@
             game.hasGun = false;
             game.ammo = 0;
             game.bullets = [];
-            player.x = canvas.width / 2;
-            player.y = canvas.height / 2;
+            game.hasDetector = false;
+            game.detectorCooldown = 0;
+            player.x = 100;
+            player.y = 100;
             entity.active = false;
             updateHUD();
             updateInventory();
@@ -1214,7 +1306,8 @@
                     item.startsWith('Pistola') || 
                     item.startsWith('Lanterna') || 
                     item.startsWith('Chave:') || 
-                    item.startsWith('Chave Final')
+                    item.startsWith('Chave Final') ||
+                    item.startsWith('Detector de Fantasmas')
                 );
                 updateInventory();
             }
@@ -1229,6 +1322,40 @@
 
         function checkInteraction() {
             const level = levels[game.currentLevel];
+            
+            if (game.currentLevel === 1 && level.detector && !game.hasDetector) {
+                const dist = Math.hypot(player.x - level.detector.x, player.y - level.detector.y);
+                if (dist < 40) {
+                    game.hasDetector = true;
+                    game.inventory.push("Detector de Fantasmas");
+                    showMessage("Detector de Fantasmas encontrado! Pressione E para usar.");
+                    updateInventory();
+                    delete level.detector;
+                    return;
+                }
+            }
+            
+            if (game.hasDetector && game.detectorCooldown === 0) {
+                // Verificar se está perto de uma porta
+                let nearDoor = false;
+                let nextLevel = null;
+                
+                level.doors.forEach(door => {
+                    const dist = Math.hypot(player.x - door.x, player.y - door.y);
+                    if (dist < 100 && !door.locked) {
+                        nearDoor = true;
+                        nextLevel = door.leadsTo;
+                    }
+                });
+                
+                if (nearDoor && nextLevel && nextLevel !== "exit") {
+                    const hasGhost = levels[nextLevel].entitySpawn === true;
+                    showGhostAlert(hasGhost);
+                    game.detectorCooldown = 180; // 3 segundos de cooldown (60 fps)
+                    showMessage("Detector usado! Aguarde 3 segundos para usar novamente.");
+                    return;
+                }
+            }
             
             if (game.deathLocation && 
                 game.deathLocation.level === game.currentLevel) {
@@ -1400,52 +1527,8 @@
                 }
             }
             
-            // Verificar munição no nível 4
-            if (game.currentLevel === 4 && level.ammo) {
-                const dist = Math.hypot(player.x - level.ammo.x, player.y - level.ammo.y);
-                if (dist < 40) {
-                    game.ammo += 15;
-                    showMessage("Munição encontrada! +15 balas");
-                    updateHUD();
-                    delete level.ammo; // Remover a munição do nível
-                }
-            }
-            
-            // Verificar munição no nível 5
-            if (game.currentLevel === 5 && level.ammo) {
-                const dist = Math.hypot(player.x - level.ammo.x, player.y - level.ammo.y);
-                if (dist < 40) {
-                    game.ammo += 15;
-                    showMessage("Munição encontrada! +15 balas");
-                    updateHUD();
-                    delete level.ammo; // Remover a munição do nível
-                }
-            }
-            
-            // Verificar munição no nível 6
-            if (game.currentLevel === 6 && level.ammo) {
-                const dist = Math.hypot(player.x - level.ammo.x, player.y - level.ammo.y);
-                if (dist < 40) {
-                    game.ammo += 15;
-                    showMessage("Munição encontrada! +15 balas");
-                    updateHUD();
-                    delete level.ammo; // Remover a munição do nível
-                }
-            }
-            
-            // Verificar munição no nível 7
-            if (game.currentLevel === 7 && level.ammo) {
-                const dist = Math.hypot(player.x - level.ammo.x, player.y - level.ammo.y);
-                if (dist < 40) {
-                    game.ammo += 15;
-                    showMessage("Munição encontrada! +15 balas");
-                    updateHUD();
-                    delete level.ammo; // Remover a munição do nível
-                }
-            }
-            
-            // Verificar munição no nível 8
-            if (game.currentLevel === 8 && level.ammo) {
+            // Verificar munição nos níveis 4, 5, 6, 7, 8
+            if (level.ammo) {
                 const dist = Math.hypot(player.x - level.ammo.x, player.y - level.ammo.y);
                 if (dist < 40) {
                     game.ammo += 15;
@@ -1461,7 +1544,7 @@
             game.housesExplored.add(newLevel);
             
             const spawnPositions = {
-                1: { x: canvas.width / 2, y: canvas.height / 2 },
+                1: { x: 100, y: 100 },
                 2: { x: 100, y: canvas.height / 2 },
                 3: { x: 100, y: 100 },
                 4: { x: canvas.width / 2, y: canvas.height - 100 },
@@ -1904,9 +1987,16 @@
                 }
             });
             
-            // Arma no nível 3
+            // Verificar arma no nível 3
             if (game.currentLevel === 3 && level.gun) {
-                drawPlayer(level.gun.x, level.gun.y); // Simplificado: desenhar como um jogador
+                //drawPlayer(level.gun.x, level.gun.y); // Simplificado: desenhar como um jogador
+                ctx.fillStyle = '#4a4a4a';
+                ctx.fillRect(level.gun.x - 12, level.gun.y - 6, 24, 12);
+                ctx.fillStyle = '#2a2a2a';
+                ctx.fillRect(level.gun.x + 8, level.gun.y - 4, 8, 8);
+                ctx.fillStyle = '#8b4513';
+                ctx.fillRect(level.gun.x - 8, level.gun.y - 4, 8, 8);
+
                 const dist = Math.hypot(player.x - level.gun.x, player.y - level.gun.y);
                 if (dist < 40) {
                     ctx.fillStyle = '#ffff00';
@@ -1916,7 +2006,7 @@
                 }
             }
             
-            // Munição nos níveis 4, 5, 6, 7, 8
+            // Verificar munição nos níveis 4, 5, 6, 7, 8
             if (level.ammo) {
                 ctx.fillStyle = '#ffa500';
                 ctx.fillRect(level.ammo.x - 6, level.ammo.y - 10, 12, 20);
@@ -1934,6 +2024,18 @@
                     ctx.font = '14px Courier New';
                     ctx.textAlign = 'center';
                     ctx.fillText('[E] Pegar Munição', level.ammo.x, level.ammo.y - 30);
+                }
+            }
+
+            if (game.currentLevel === 1 && level.detector) {
+                drawDetector(level.detector.x, level.detector.y);
+                
+                const dist = Math.hypot(player.x - level.detector.x, player.y - level.detector.y);
+                if (dist < 40) {
+                    ctx.fillStyle = '#ffff00';
+                    ctx.font = '14px Courier New';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('[E] Pegar Detector', level.detector.x, level.detector.y - 35);
                 }
             }
             
@@ -2010,6 +2112,10 @@
         function gameLoop() {
             if (game.state !== 'playing') return;
             
+            if (game.detectorCooldown > 0) {
+                game.detectorCooldown--;
+            }
+
             updatePlayer();
             updateEntity();
             updateBullets();
@@ -2079,9 +2185,8 @@
             document.getElementById('game-over-screen').style.display = 'none';
             game.state = 'playing';
             
-            // Respawnar no início do nível atual
             const spawnPositions = {
-                1: { x: canvas.width / 2, y: canvas.height / 2 },
+                1: { x: 100, y: 100 },
                 2: { x: 100, y: canvas.height / 2 },
                 3: { x: 100, y: 100 },
                 4: { x: canvas.width / 2, y: canvas.height - 100 },
