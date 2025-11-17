@@ -36,7 +36,7 @@
             overflow: hidden;
         }
 
-        /* Adicionando animação de fantasmas flutuando rapidamente */
+        /* Fantasmas flutuantes */
         .ghost-float {
             position: absolute;
             font-size: 4rem;
@@ -65,7 +65,7 @@
             }
         }
 
-        /* Efeito de brilho e pulsação na tela inicial */
+        /* Efeito de brilho e pulsação */
         @keyframes pulse-glow {
             0%, 100% {
                 text-shadow: 0 0 20px #ff8800, 0 0 40px #ff4400;
@@ -113,7 +113,7 @@
             z-index: 2;
         }
 
-        /* Estilos melhorados para botões com efeitos */
+        /* Estilos para botões */
         #start-btn, #register-btn {
             padding: 18px 50px;
             font-size: 1.3rem;
@@ -162,24 +162,6 @@
             background: #2a2a2a;
             color: #fff;
             border-color: #666;
-        }
-
-        #scare-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-        }
-
-        #scare-canvas {
-            max-width: 90vw;
-            max-height: 90vh;
         }
 
         /* Tela de Game Over */
@@ -460,21 +442,12 @@
             transform: scale(1.05);
         }
 
-        /* Animação de portas */
-        @keyframes door-open {
-            0% { transform: scaleX(1); }
-            50% { transform: scaleX(0.3); }
-            100% { transform: scaleX(0); }
-        }
-
-        .door-opening {
-            animation: door-open 1s ease-in-out forwards;
-        }
-
+        /* Canvas do Jogo */
         #game-canvas {
             display: block;
         }
 
+        /* HUD */
         #hud {
             position: fixed;
             top: 20px;
@@ -528,7 +501,6 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* Reduzindo a visibilidade - overlay mais opaco para escuridão maior */
             background: radial-gradient(circle at var(--flashlight-x) var(--flashlight-y), 
                 transparent 0%, transparent 60px, rgba(0, 0, 0, 0.92) 150px);
             pointer-events: none;
@@ -584,11 +556,6 @@
         <h1 id="victory-title">VOCÊ ESCAPOU!</h1>
         <p id="victory-text">Parabéns! Você coletou todos os códigos e descobriu o segredo final. Você conseguiu escapar da Livraria Abandonada!</p>
         <button id="restart-btn-victory">JOGAR NOVAMENTE</button>
-    </div>
-
-    <!-- Tela de susto -->
-    <div id="scare-screen">
-        <canvas id="scare-canvas" width="400" height="400"></canvas>
     </div>
 
     <!-- Tela de Senha para próximo setor -->
@@ -751,7 +718,7 @@
             document.getElementById('start-description').textContent = getTranslation('start-description');
             document.getElementById('start-btn').textContent = getTranslation('start-btn');
             document.getElementById('settings-btn').textContent = getTranslation('settings-btn');
-            document.getElementById('register-btn').textContent = getTranslation('register-title'); // Assuming 'register-title' also maps to button text
+            document.getElementById('register-btn').textContent = getTranslation('register-title');
         }
 
         // ==================== SETUP INICIAL ====================
@@ -795,14 +762,6 @@
             runSpeed: 7.5,
             angle: 0,
             direction: 'down'
-        };
-
-        const entity = {
-            x: 0,
-            y: 0,
-            size: 20,
-            speed: 1.8,
-            active: false
         };
 
         let entities = [];
@@ -892,11 +851,9 @@
             
             // Livros coloridos
             const bookColors = ['#8b0000', '#00008b', '#006400', '#8b4513', '#4b0082'];
-            // Usar tempo mais lento para mudança de cores (dividir por 5000 em vez de usar random puro)
             const timeSeed = Math.floor(Date.now() / 5000);
             for (let shelf = 0; shelf < 4; shelf++) {
                 for (let book = 0; book < Math.floor(width / (4 * pixelSize)); book++) {
-                    // Usar posição + tempo lento como seed para cores mais estáveis
                     const colorIndex = (Math.floor(x) + Math.floor(y) + shelf * 10 + book * 3 + timeSeed) % bookColors.length;
                     ctx.fillStyle = bookColors[colorIndex];
                     ctx.fillRect(
@@ -1324,8 +1281,10 @@
                 const newX = ent.x + path.x * ent.speed;
                 const newY = ent.y + path.y * ent.speed;
                 
-                if (!checkBookshelfCollision(newX, newY) && !checkWallCollision(newX, newY)) {
+                if (!checkBookshelfCollision(newX, ent.y) && !checkWallCollision(newX, ent.y)) {
                     ent.x = newX;
+                }
+                if (!checkBookshelfCollision(ent.x, newY) && !checkWallCollision(ent.x, newY)) {
                     ent.y = newY;
                 }
                 
@@ -1349,9 +1308,6 @@
             
             return { x, y };
         }
-
-        // CHAMADA REMOVIDA spawnEntityPeriodically()
-        // DIMINUÍDA VELOCIDADE DAS ENTIDADES AGORA EM updateEntities() COM PATH FINDING MELHORADO
 
         function startGame() {
             document.getElementById('start-screen').style.display = 'none';
@@ -1411,6 +1367,7 @@
             startGame();
         }
 
+        // ==================== DEFINIÇÃO DOS NÍVEIS ====================
         const levels = {
             1: {
                 name: "Entrada da Livraria",
@@ -1419,28 +1376,16 @@
                 floorColor: "#3a2a1a",
                 walls: [],
                 bookshelves: [
-                    { x: canvas.width * 0.15, y: canvas.height * 0.08, width: 150, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.08, width: 120, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.08, width: 150, height: 80 },
-                    { x: canvas.width * 0.75, y: canvas.height * 0.08, width: 120, height: 80 },
+                    // Estantes nas bordas
+                    { x: 0, y: 0, width: canvas.width, height: 40 },
+                    { x: 0, y: canvas.height - 40, width: canvas.width, height: 40 },
+                    { x: 0, y: 0, width: 40, height: canvas.height },
+                    { x: canvas.width - 40, y: 0, width: 40, height: canvas.height },
                     
-                    { x: canvas.width * 0.12, y: canvas.height * 0.22, width: 80, height: 150 },
-                    { x: canvas.width * 0.12, y: canvas.height * 0.5, width: 80, height: 180 },
-                    
-                    { x: canvas.width * 0.25, y: canvas.height * 0.25, width: 120, height: 80 },
-                    { x: canvas.width * 0.25, y: canvas.height * 0.45, width: 80, height: 120 },
-                    { x: canvas.width * 0.25, y: canvas.height * 0.7, width: 120, height: 80 },
-                    
-                    { x: canvas.width * 0.42, y: canvas.height * 0.2, width: 80, height: 180 },
-                    { x: canvas.width * 0.42, y: canvas.height * 0.55, width: 80, height: 200 },
-                    
-                    { x: canvas.width * 0.55, y: canvas.height * 0.3, width: 150, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.5, width: 120, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.7, width: 150, height: 80 },
-                    
-                    { x: canvas.width * 0.72, y: canvas.height * 0.18, width: 80, height: 150 },
-                    { x: canvas.width * 0.72, y: canvas.height * 0.45, width: 80, height: 120 },
-                    { x: canvas.width * 0.72, y: canvas.height * 0.72, width: 80, height: 150 }
+                    // Labirinto simples
+                    { x: canvas.width * 0.2, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.6, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.6, width: 120, height: 40 }
                 ],
                 doors: [
                     { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 2, label: "→ Setor 2" }
@@ -1460,26 +1405,18 @@
                 floorColor: "#1a1a1a",
                 walls: [],
                 bookshelves: [
-                    { x: canvas.width * 0.2, y: canvas.height * 0.1, width: 100, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.1, width: 120, height: 80 },
+                    // Estantes nas bordas
+                    { x: 0, y: 0, width: canvas.width, height: 40 },
+                    { x: 0, y: canvas.height - 40, width: canvas.width, height: 40 },
+                    { x: 0, y: 0, width: 40, height: canvas.height },
+                    { x: canvas.width - 40, y: 0, width: 40, height: canvas.height },
                     
-                    { x: canvas.width * 0.15, y: canvas.height * 0.25, width: 80, height: 150 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.55, width: 80, height: 180 },
-                    
-                    { x: canvas.width * 0.3, y: canvas.height * 0.3, width: 150, height: 80 },
-                    { x: canvas.width * 0.3, y: canvas.height * 0.5, width: 120, height: 80 },
-                    { x: canvas.width * 0.3, y: canvas.height * 0.7, width: 150, height: 80 },
-                    
-                    { x: canvas.width * 0.5, y: canvas.height * 0.15, width: 80, height: 180 },
-                    { x: canvas.width * 0.5, y: canvas.height * 0.45, width: 80, height: 150 },
-                    { x: canvas.width * 0.5, y: canvas.height * 0.7, width: 80, height: 120 },
-                    
-                    { x: canvas.width * 0.65, y: canvas.height * 0.2, width: 120, height: 80 },
-                    { x: canvas.width * 0.65, y: canvas.height * 0.4, width: 150, height: 80 },
-                    { x: canvas.width * 0.65, y: canvas.height * 0.6, width: 100, height: 80 },
-                    
-                    { x: canvas.width * 0.78, y: canvas.height * 0.25, width: 80, height: 200 },
-                    { x: canvas.width * 0.78, y: canvas.height * 0.6, width: 80, height: 150 }
+                    // Labirinto mais complexo
+                    { x: canvas.width * 0.3, y: canvas.height * 0.2, width: 100, height: 40 },
+                    { x: canvas.width * 0.6, y: canvas.height * 0.3, width: 100, height: 40 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.5, width: 100, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.6, width: 100, height: 40 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.7, width: 100, height: 40 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 1, label: "← Setor 1" },
@@ -1502,26 +1439,19 @@
                 floorColor: "#0a0a0a",
                 walls: [],
                 bookshelves: [
-                    { x: canvas.width * 0.25, y: canvas.height * 0.08, width: 150, height: 80 },
-                    { x: canvas.width * 0.5, y: canvas.height * 0.08, width: 120, height: 80 },
+                    // Estantes nas bordas
+                    { x: 0, y: 0, width: canvas.width, height: 40 },
+                    { x: 0, y: canvas.height - 40, width: canvas.width, height: 40 },
+                    { x: 0, y: 0, width: 40, height: canvas.height },
+                    { x: canvas.width - 40, y: 0, width: 40, height: canvas.height },
                     
-                    { x: canvas.width * 0.15, y: canvas.height * 0.22, width: 80, height: 150 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.48, width: 80, height: 180 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.75, width: 80, height: 100 },
-                    
-                    { x: canvas.width * 0.32, y: canvas.height * 0.25, width: 120, height: 80 },
-                    { x: canvas.width * 0.32, y: canvas.height * 0.42, width: 150, height: 80 },
-                    { x: canvas.width * 0.32, y: canvas.height * 0.6, width: 120, height: 80 },
-                    { x: canvas.width * 0.32, y: canvas.height * 0.78, width: 150, height: 80 },
-                    
-                    { x: canvas.width * 0.55, y: canvas.height * 0.2, width: 80, height: 180 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.5, width: 80, height: 150 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.75, width: 80, height: 120 },
-                    
-                    { x: canvas.width * 0.7, y: canvas.height * 0.15, width: 120, height: 80 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.35, width: 100, height: 80 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.55, width: 120, height: 80 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.72, width: 100, height: 80 }
+                    // Labirinto mais complexo
+                    { x: canvas.width * 0.2, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.3, width: 120, height: 40 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.5, width: 120, height: 40 },
+                    { x: canvas.width * 0.6, y: canvas.height * 0.6, width: 120, height: 40 },
+                    { x: canvas.width * 0.4, y: canvas.height * 0.7, width: 120, height: 40 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.4, width: 120, height: 40 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 2, label: "← Setor 2" },
@@ -1543,24 +1473,20 @@
                 floorColor: "#1a0a0a",
                 walls: [],
                 bookshelves: [
-                    { x: canvas.width * 0.15, y: canvas.height * 0.2, width: 150, height: 80 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.4, width: 150, height: 80 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.6, width: 150, height: 80 },
+                    // Estantes nas bordas
+                    { x: 0, y: 0, width: canvas.width, height: 40 },
+                    { x: 0, y: canvas.height - 40, width: canvas.width, height: 40 },
+                    { x: 0, y: 0, width: 40, height: canvas.height },
+                    { x: canvas.width - 40, y: 0, width: 40, height: canvas.height },
                     
-                    { x: canvas.width * 0.35, y: canvas.height * 0.1, width: 100, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.25, width: 120, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.42, width: 100, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.58, width: 120, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.75, width: 100, height: 80 },
-                    
-                    { x: canvas.width * 0.55, y: canvas.height * 0.2, width: 120, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.4, width: 150, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.6, width: 100, height: 80 },
-                    
-                    { x: canvas.width * 0.72, y: canvas.height * 0.15, width: 100, height: 80 },
-                    { x: canvas.width * 0.72, y: canvas.height * 0.32, width: 120, height: 80 },
-                    { x: canvas.width * 0.72, y: canvas.height * 0.5, width: 100, height: 80 },
-                    { x: canvas.width * 0.72, y: canvas.height * 0.68, width: 120, height: 80 }
+                    // Labirinto mais complexo
+                    { x: canvas.width * 0.2, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.6, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.6, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.6, width: 120, height: 40 },
+                    { x: canvas.width * 0.4, y: canvas.height * 0.8, width: 120, height: 40 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 3, label: "← Setor 3" },
@@ -1583,23 +1509,22 @@
                 floorColor: "#0a0a0a",
                 walls: [],
                 bookshelves: [
-                    { x: canvas.width * 0.1, y: canvas.height * 0.15, width: 120, height: 80 },
-                    { x: canvas.width * 0.1, y: canvas.height * 0.4, width: 120, height: 80 },
-                    { x: canvas.width * 0.1, y: canvas.height * 0.65, width: 120, height: 80 },
+                    // Estantes nas bordas
+                    { x: 0, y: 0, width: canvas.width, height: 40 },
+                    { x: 0, y: canvas.height - 40, width: canvas.width, height: 40 },
+                    { x: 0, y: 0, width: 40, height: canvas.height },
+                    { x: canvas.width - 40, y: 0, width: 40, height: canvas.height },
                     
-                    { x: canvas.width * 0.3, y: canvas.height * 0.08, width: 100, height: 80 },
-                    { x: canvas.width * 0.3, y: canvas.height * 0.25, width: 150, height: 80 },
-                    { x: canvas.width * 0.3, y: canvas.height * 0.45, width: 100, height: 80 },
-                    { x: canvas.width * 0.3, y: canvas.height * 0.62, width: 150, height: 80 },
-                    
-                    { x: canvas.width * 0.52, y: canvas.height * 0.2, width: 120, height: 80 },
-                    { x: canvas.width * 0.52, y: canvas.height * 0.4, width: 100, height: 80 },
-                    { x: canvas.width * 0.52, y: canvas.height * 0.6, width: 120, height: 80 },
-                    
-                    { x: canvas.width * 0.7, y: canvas.height * 0.12, width: 100, height: 80 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.32, width: 120, height: 80 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.52, width: 100, height: 80 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.72, width: 120, height: 80 }
+                    // Labirinto complexo
+                    { x: canvas.width * 0.2, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.6, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.6, width: 120, height: 40 },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.6, width: 120, height: 40 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 4, label: "← Setor 4" },
@@ -1620,19 +1545,21 @@
                 floorColor: "#1a0a0a",
                 walls: [],
                 bookshelves: [
-                    { x: canvas.width * 0.2, y: canvas.height * 0.15, width: 150, height: 80 },
-                    { x: canvas.width * 0.2, y: canvas.height * 0.35, width: 150, height: 80 },
-                    { x: canvas.width * 0.2, y: canvas.height * 0.55, width: 150, height: 80 },
-                    { x: canvas.width * 0.2, y: canvas.height * 0.75, width: 150, height: 80 },
+                    // Estantes nas bordas
+                    { x: 0, y: 0, width: canvas.width, height: 40 },
+                    { x: 0, y: canvas.height - 40, width: canvas.width, height: 40 },
+                    { x: 0, y: 0, width: 40, height: canvas.height },
+                    { x: canvas.width - 40, y: 0, width: 40, height: canvas.height },
                     
-                    { x: canvas.width * 0.45, y: canvas.height * 0.1, width: 120, height: 80 },
-                    { x: canvas.width * 0.45, y: canvas.height * 0.3, width: 100, height: 80 },
-                    { x: canvas.width * 0.45, y: canvas.height * 0.5, width: 120, height: 80 },
-                    { x: canvas.width * 0.45, y: canvas.height * 0.7, width: 100, height: 80 },
-                    
-                    { x: canvas.width * 0.65, y: canvas.height * 0.2, width: 100, height: 80 },
-                    { x: canvas.width * 0.65, y: canvas.height * 0.4, width: 150, height: 80 },
-                    { x: canvas.width * 0.65, y: canvas.height * 0.6, width: 100, height: 80 }
+                    // Labirinto muito complexo
+                    { x: canvas.width * 0.2, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.6, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.6, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.6, width: 120, height: 40 },
+                    { x: canvas.width * 0.4, y: canvas.height * 0.8, width: 120, height: 40 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.8, width: 120, height: 40 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 5, label: "← Setor 5" },
@@ -1655,23 +1582,23 @@
                 floorColor: "#050505",
                 walls: [],
                 bookshelves: [
-                    { x: canvas.width * 0.15, y: canvas.height * 0.1, width: 100, height: 80 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.3, width: 120, height: 80 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.5, width: 100, height: 80 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.7, width: 120, height: 80 },
+                    // Estantes nas bordas
+                    { x: 0, y: 0, width: canvas.width, height: 40 },
+                    { x: 0, y: canvas.height - 40, width: canvas.width, height: 40 },
+                    { x: 0, y: 0, width: 40, height: canvas.height },
+                    { x: canvas.width - 40, y: 0, width: 40, height: canvas.height },
                     
-                    { x: canvas.width * 0.35, y: canvas.height * 0.15, width: 150, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.4, width: 100, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.62, width: 150, height: 80 },
-                    
-                    { x: canvas.width * 0.55, y: canvas.height * 0.08, width: 120, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.28, width: 100, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.48, width: 120, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.68, width: 100, height: 80 },
-                    
-                    { x: canvas.width * 0.72, y: canvas.height * 0.2, width: 100, height: 80 },
-                    { x: canvas.width * 0.72, y: canvas.height * 0.4, width: 120, height: 80 },
-                    { x: canvas.width * 0.72, y: canvas.height * 0.6, width: 100, height: 80 }
+                    // Labirinto extremamente complexo
+                    { x: canvas.width * 0.2, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.6, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.6, width: 120, height: 40 },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.6, width: 120, height: 40 },
+                    { x: canvas.width * 0.4, y: canvas.height * 0.8, width: 120, height: 40 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 6, label: "← Setor 6" },
@@ -1692,22 +1619,24 @@
                 floorColor: "#000000",
                 walls: [],
                 bookshelves: [
-                    { x: canvas.width * 0.1, y: canvas.height * 0.1, width: 150, height: 100 },
-                    { x: canvas.width * 0.1, y: canvas.height * 0.4, width: 150, height: 100 },
-                    { x: canvas.width * 0.1, y: canvas.height * 0.7, width: 150, height: 100 },
+                    // Estantes nas bordas
+                    { x: 0, y: 0, width: canvas.width, height: 40 },
+                    { x: 0, y: canvas.height - 40, width: canvas.width, height: 40 },
+                    { x: 0, y: 0, width: 40, height: canvas.height },
+                    { x: canvas.width - 40, y: 0, width: 40, height: canvas.height },
                     
-                    { x: canvas.width * 0.35, y: canvas.height * 0.15, width: 120, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.35, width: 150, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.55, width: 120, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.75, width: 150, height: 80 },
-                    
-                    { x: canvas.width * 0.6, y: canvas.height * 0.2, width: 100, height: 80 },
-                    { x: canvas.width * 0.6, y: canvas.height * 0.4, width: 120, height: 80 },
-                    { x: canvas.width * 0.6, y: canvas.height * 0.6, width: 100, height: 80 },
-                    
-                    { x: canvas.width * 0.8, y: canvas.height * 0.25, width: 120, height: 80 },
-                    { x: canvas.width * 0.8, y: canvas.height * 0.5, width: 100, height: 80 },
-                    { x: canvas.width * 0.8, y: canvas.height * 0.75, width: 120, height: 80 }
+                    // Labirinto final - muito complexo
+                    { x: canvas.width * 0.2, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.2, width: 120, height: 40 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.4, width: 120, height: 40 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.6, width: 120, height: 40 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.6, width: 120, height: 40 },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.6, width: 120, height: 40 },
+                    { x: canvas.width * 0.4, y: canvas.height * 0.8, width: 120, height: 40 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.8, width: 120, height: 40 }
                 ],
                 doors: [
                     { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 7, label: "← Setor 7" }
@@ -1803,23 +1732,19 @@
             }
             
             level.doors.forEach(door => {
-                // Cor das portas baseada no estado
                 const baseColor = door.locked ? '#8b0000' : '#2a4a2a';
                 ctx.fillStyle = baseColor;
                 ctx.fillRect(door.x - door.width / 2, door.y - door.height / 2, door.width, door.height);
                 
-                // Textura de porta
                 ctx.strokeStyle = '#1a1a1a';
                 ctx.lineWidth = 2;
                 ctx.strokeRect(door.x - door.width / 2, door.y - door.height / 2, door.width, door.height);
                 
-                // Label da porta
                 ctx.fillStyle = '#fff';
                 ctx.font = '12px Courier New';
                 ctx.textAlign = 'center';
                 ctx.fillText(door.label, door.x, door.y - door.height / 2 - 10);
                 
-                // Indicador de proximidade
                 const dist = Math.hypot(player.x - door.x, player.y - door.y);
                 if (dist < 60) {
                     ctx.strokeStyle = '#ffff00';
@@ -1955,7 +1880,6 @@
             updateEntities();
             updateBullets();
             updateFlashlightBattery();
-            // spawnEntityPeriodically(); // REMOVIDO
             render();
             
             requestAnimationFrame(gameLoop);
@@ -1982,7 +1906,6 @@
             const input = document.getElementById('password-input');
             if (input.value.toUpperCase() === game.currentPassword) {
                 document.getElementById('password-screen').style.display = 'none';
-                // Animação de porta abrindo
                 showMessage("Porta aberta! Entrando no próximo setor...");
                 setTimeout(() => {
                     nextLevel();
@@ -2053,7 +1976,7 @@
             const name = document.getElementById('register-name').value;
             const email = document.getElementById('register-email').value;
             
-            // Simulando envio de email (em produção, conectar a um backend)
+            // Simulando envio de email
             console.log(`Email para ${name} (${email}): Bem-vindo! Esse é nosso jogo de trabalho de feira.`);
             showMessage(`Email enviado para ${name}!`);
             
@@ -2076,21 +1999,23 @@
         updateUILanguage();
         document.getElementById('language-select').value = currentLanguage;
         
+        // Função para criar fantasmas flutuantes
+        function createFloatingGhosts() {
+            const startScreen = document.getElementById('start-screen');
+            const ghostCount = 5;
+            
+            for (let i = 0; i < ghostCount; i++) {
+                const ghost = document.createElement('div');
+                ghost.className = 'ghost-float';
+                ghost.textContent = '👻';
+                ghost.style.setProperty('--offset', `${Math.random() * 80 - 40}%`);
+                ghost.style.animationDelay = `${Math.random() * 4}s`;
+                startScreen.appendChild(ghost);
+            }
+        }
+        
         // Chamar função de fantasmas ao carregar página
         createFloatingGhosts();
-
-        const path = findPathToPlayer(ent.x, ent.y, level);
-
-// verifica colisão antes de mover
-const newX = ent.x + path.x * ent.speed;
-const newY = ent.y + path.y * ent.speed;
-
-if (!checkBookshelfCollision(newX, ent.y) && !checkWallCollision(newX, ent.y)) {
-    ent.x = newX;
-}
-if (!checkBookshelfCollision(ent.x, newY) && !checkWallCollision(ent.x, newY)) {
-    ent.y = newY;
-}
     </script>
 </body>
 </html>
