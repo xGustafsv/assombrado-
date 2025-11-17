@@ -2078,6 +2078,19 @@
         
         // Chamar função de fantasmas ao carregar página
         createFloatingGhosts();
+
+        const path = findPathToPlayer(ent.x, ent.y, level);
+
+// verifica colisão antes de mover
+const newX = ent.x + path.x * ent.speed;
+const newY = ent.y + path.y * ent.speed;
+
+if (!checkBookshelfCollision(newX, ent.y) && !checkWallCollision(newX, ent.y)) {
+    ent.x = newX;
+}
+if (!checkBookshelfCollision(ent.x, newY) && !checkWallCollision(ent.x, newY)) {
+    ent.y = newY;
+}
     </script>
 </body>
 </html>
