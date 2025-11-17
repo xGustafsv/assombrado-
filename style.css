@@ -1,0 +1,513 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+    background: #000;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+/* Tela Inicial */
+#start-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #1a0a00 0%, #000000 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+/* Fantasmas flutuantes */
+.ghost-float {
+    position: absolute;
+    font-size: 4rem;
+    opacity: 0.15;
+    animation: float-across 4s linear infinite;
+    text-shadow: 0 0 15px #ff66ff, 0 0 30px #ff00ff;
+}
+
+@keyframes float-across {
+    0% {
+        transform: translateX(-150px) translateY(var(--offset));
+        opacity: 0.05;
+    }
+    25% {
+        opacity: 0.2;
+    }
+    50% {
+        opacity: 0.15;
+    }
+    75% {
+        opacity: 0.2;
+    }
+    100% {
+        transform: translateX(calc(100vw + 150px)) translateY(var(--offset));
+        opacity: 0.05;
+    }
+}
+
+/* Efeito de brilho e pulsação */
+@keyframes pulse-glow {
+    0%, 100% {
+        text-shadow: 0 0 20px #ff8800, 0 0 40px #ff4400;
+    }
+    50% {
+        text-shadow: 0 0 30px #ff8800, 0 0 60px #ff4400, 0 0 80px #ff2200;
+    }
+}
+
+/* Efeito de vibração suave */
+@keyframes subtle-shake {
+    0%, 100% {
+        transform: translateX(0) translateY(0);
+    }
+    25% {
+        transform: translateX(2px) translateY(-1px);
+    }
+    50% {
+        transform: translateX(-2px) translateY(2px);
+    }
+    75% {
+        transform: translateX(1px) translateY(-2px);
+    }
+}
+
+#start-screen h1 {
+    font-size: 3.5rem;
+    color: #ff8800;
+    margin-bottom: 1rem;
+    text-align: center;
+    z-index: 2;
+    animation: pulse-glow 2s ease-in-out infinite, subtle-shake 4s ease-in-out infinite;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+#start-screen p {
+    font-size: 1.1rem;
+    color: #ddd;
+    max-width: 600px;
+    text-align: center;
+    margin-bottom: 3rem;
+    line-height: 1.8;
+    padding: 0 20px;
+    z-index: 2;
+}
+
+/* Estilos para botões */
+#start-btn, #register-btn {
+    padding: 18px 50px;
+    font-size: 1.3rem;
+    background: #4a2511;
+    color: #fff;
+    border: 3px solid #8b4513;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    z-index: 2;
+    margin: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+#start-btn:hover, #register-btn:hover {
+    background: #8b4513;
+    border-color: #ff8800;
+    box-shadow: 0 0 30px #ff8800, inset 0 0 20px rgba(255, 136, 0, 0.3);
+    transform: scale(1.08);
+}
+
+#start-btn:active, #register-btn:active {
+    transform: scale(0.98);
+}
+
+#settings-btn {
+    position: absolute;
+    top: 50%;
+    right: 50px;
+    transform: translateY(-50%);
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    background: #1a1a1a;
+    color: #888;
+    border: 2px solid #444;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Courier New', monospace;
+    z-index: 2;
+}
+
+#settings-btn:hover {
+    background: #2a2a2a;
+    color: #fff;
+    border-color: #666;
+}
+
+/* Tela de Game Over */
+#game-over-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 998;
+}
+
+#game-over-screen h1 {
+    font-size: 4rem;
+    color: #ff0000;
+    text-shadow: 0 0 20px #ff0000;
+    margin-bottom: 1rem;
+}
+
+#game-over-screen p {
+    font-size: 1.5rem;
+    color: #aaa;
+    margin-bottom: 2rem;
+}
+
+#restart-btn {
+    padding: 15px 40px;
+    font-size: 1.3rem;
+    background: #8b0000;
+    color: #fff;
+    border: 2px solid #ff0000;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Courier New', monospace;
+}
+
+#restart-btn:hover {
+    background: #ff0000;
+    transform: scale(1.05);
+}
+
+/* Tela de Vitória */
+#victory-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 50, 0, 0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 998;
+}
+
+#victory-screen h1 {
+    font-size: 4rem;
+    color: #00ff00;
+    text-shadow: 0 0 20px #00ff00;
+    margin-bottom: 1rem;
+}
+
+#victory-screen p {
+    font-size: 1.5rem;
+    color: #aaa;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    text-align: center;
+}
+
+#restart-btn-victory {
+    padding: 15px 40px;
+    font-size: 1.3rem;
+    background: #006600;
+    color: #fff;
+    border: 2px solid #00ff00;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Courier New', monospace;
+}
+
+#restart-btn-victory:hover {
+    background: #00ff00;
+    color: #000;
+    transform: scale(1.05);
+}
+
+/* Tela de Configurações */
+#settings-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 999;
+}
+
+#settings-screen h2 {
+    font-size: 2.5rem;
+    color: #8b4513;
+    margin-bottom: 2rem;
+}
+
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.settings-group label {
+    color: #ddd;
+    font-size: 1.2rem;
+}
+
+.settings-group select {
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    background: #2a2a2a;
+    color: #fff;
+    border: 2px solid #8b4513;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+}
+
+#back-to-start {
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    background: #4a2511;
+    color: #fff;
+    border: 2px solid #8b4513;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Courier New', monospace;
+}
+
+#back-to-start:hover {
+    background: #8b4513;
+    transform: scale(1.05);
+}
+
+/* Tela de Senha para próximo setor */
+#password-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 997;
+}
+
+#password-screen h2 {
+    font-size: 2rem;
+    color: #8b4513;
+    margin-bottom: 1.5rem;
+}
+
+#password-screen p {
+    color: #ddd;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+#password-input {
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    background: #2a2a2a;
+    color: #fff;
+    border: 2px solid #8b4513;
+    font-family: 'Courier New', monospace;
+    width: 300px;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+#password-submit {
+    padding: 12px 40px;
+    font-size: 1.2rem;
+    background: #4a2511;
+    color: #fff;
+    border: 2px solid #8b4513;
+    cursor: pointer;
+    margin-top: 1rem;
+    font-family: 'Courier New', monospace;
+}
+
+#password-submit:hover {
+    background: #8b4513;
+}
+
+#password-error {
+    color: #ff0000;
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    min-height: 30px;
+}
+
+/* Tela de Cadastro */
+#register-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 999;
+}
+
+#register-screen h2 {
+    font-size: 2.5rem;
+    color: #8b4513;
+    margin-bottom: 2rem;
+}
+
+#register-form input {
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    background: #2a2a2a;
+    color: #fff;
+    border: 2px solid #8b4513;
+    font-family: 'Courier New', monospace;
+    width: 300px;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+#register-form button {
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    background: #4a2511;
+    color: #fff;
+    border: 2px solid #8b4513;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Courier New', monospace;
+}
+
+#register-form button:hover {
+    background: #8b4513;
+    transform: scale(1.05);
+}
+
+#back-to-menu {
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    background: #4a2511;
+    color: #fff;
+    border: 2px solid #8b4513;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Courier New', monospace;
+    margin-top: 1rem;
+}
+
+#back-to-menu:hover {
+    background: #8b4513;
+    transform: scale(1.05);
+}
+
+/* Canvas do Jogo */
+#game-canvas {
+    display: block;
+}
+
+/* HUD */
+#hud {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    color: #0f0;
+    font-size: 18px;
+    text-shadow: 0 0 10px #0f0;
+    z-index: 100;
+    font-family: 'Courier New', monospace;
+    line-height: 1.8;
+}
+
+#inventory {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    color: #0f0;
+    font-size: 16px;
+    text-shadow: 0 0 10px #0f0;
+    z-index: 100;
+    font-family: 'Courier New', monospace;
+}
+
+#message-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: #0f0;
+    padding: 20px 40px;
+    border: 2px solid #0f0;
+    text-shadow: 0 0 10px #0f0;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    z-index: 500;
+    display: none;
+    max-width: 500px;
+    border-radius: 5px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Lanterna */
+#flashlight-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at var(--flashlight-x) var(--flashlight-y), 
+        transparent 0%, transparent 60px, rgba(0, 0, 0, 0.92) 150px);
+    pointer-events: none;
+    z-index: 50;
+    display: none;
+}
+
+#flashlight-battery {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    color: #ffff00;
+    font-size: 1rem;
+    z-index: 100;
+    text-shadow: 2px 2px 4px #000;
+    display: none;
+}
