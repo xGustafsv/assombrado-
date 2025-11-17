@@ -33,48 +33,116 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            overflow: hidden;
         }
 
-        /* Adicionando estilos para tornar o texto visível na tela inicial */
+        /* Adicionando animação de fantasmas flutuando rapidamente */
+        .ghost-float {
+            position: absolute;
+            font-size: 4rem;
+            opacity: 0.15;
+            animation: float-across 4s linear infinite;
+            text-shadow: 0 0 15px #ff66ff, 0 0 30px #ff00ff;
+        }
+
+        @keyframes float-across {
+            0% {
+                transform: translateX(-150px) translateY(var(--offset));
+                opacity: 0.05;
+            }
+            25% {
+                opacity: 0.2;
+            }
+            50% {
+                opacity: 0.15;
+            }
+            75% {
+                opacity: 0.2;
+            }
+            100% {
+                transform: translateX(calc(100vw + 150px)) translateY(var(--offset));
+                opacity: 0.05;
+            }
+        }
+
+        /* Efeito de brilho e pulsação na tela inicial */
+        @keyframes pulse-glow {
+            0%, 100% {
+                text-shadow: 0 0 20px #ff8800, 0 0 40px #ff4400;
+            }
+            50% {
+                text-shadow: 0 0 30px #ff8800, 0 0 60px #ff4400, 0 0 80px #ff2200;
+            }
+        }
+
+        /* Efeito de vibração suave */
+        @keyframes subtle-shake {
+            0%, 100% {
+                transform: translateX(0) translateY(0);
+            }
+            25% {
+                transform: translateX(2px) translateY(-1px);
+            }
+            50% {
+                transform: translateX(-2px) translateY(2px);
+            }
+            75% {
+                transform: translateX(1px) translateY(-2px);
+            }
+        }
+
         #start-screen h1 {
-            font-size: 3rem;
-            color: #8b4513;
-            text-shadow: 0 0 20px #ff8800, 0 0 40px #ff4400;
-            margin-bottom: 2rem;
+            font-size: 3.5rem;
+            color: #ff8800;
+            margin-bottom: 1rem;
             text-align: center;
+            z-index: 2;
+            animation: pulse-glow 2s ease-in-out infinite, subtle-shake 4s ease-in-out infinite;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
 
         #start-screen p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: #ddd;
             max-width: 600px;
             text-align: center;
             margin-bottom: 3rem;
-            line-height: 1.6;
+            line-height: 1.8;
             padding: 0 20px;
+            z-index: 2;
         }
 
-        #start-btn {
-            padding: 20px 50px;
-            font-size: 1.5rem;
+        /* Estilos melhorados para botões com efeitos */
+        #start-btn, #register-btn {
+            padding: 18px 50px;
+            font-size: 1.3rem;
             background: #4a2511;
             color: #fff;
             border: 3px solid #8b4513;
             cursor: pointer;
             font-family: 'Courier New', monospace;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 2px;
+            z-index: 2;
+            margin: 10px;
+            position: relative;
+            overflow: hidden;
         }
 
-        #start-btn:hover {
+        #start-btn:hover, #register-btn:hover {
             background: #8b4513;
             border-color: #ff8800;
-            box-shadow: 0 0 20px #ff8800;
-            transform: scale(1.05);
+            box-shadow: 0 0 30px #ff8800, inset 0 0 20px rgba(255, 136, 0, 0.3);
+            transform: scale(1.08);
         }
 
-        #register-btn {
+        #start-btn:active, #register-btn:active {
+            transform: scale(0.98);
+        }
+
+        #settings-btn {
             position: absolute;
             top: 50%;
             right: 50px;
@@ -87,9 +155,10 @@
             cursor: pointer;
             transition: all 0.3s;
             font-family: 'Courier New', monospace;
+            z-index: 2;
         }
 
-        #register-btn:hover {
+        #settings-btn:hover {
             background: #2a2a2a;
             color: #fff;
             border-color: #666;
@@ -105,222 +174,351 @@
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 2000;
+            z-index: 999;
         }
 
-        #scare-screen canvas {
-            image-rendering: pixelated;
+        #scare-canvas {
+            max-width: 90vw;
+            max-height: 90vh;
         }
 
-        #register-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, #0a0a1a 0%, #000000 100%);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1500;
-        }
-
-        #register-screen h2 {
-            font-size: 2rem;
-            color: #8b4513;
-            margin-bottom: 2rem;
-        }
-
-        #register-form {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 30px;
-            border: 2px solid #8b4513;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            min-width: 300px;
-        }
-
-        #register-form input {
-            padding: 10px;
-            font-size: 1rem;
-            background: #1a1a1a;
-            color: #fff;
-            border: 1px solid #444;
-            font-family: 'Courier New', monospace;
-        }
-
-        #register-form button {
-            padding: 12px;
-            font-size: 1.1rem;
-            background: #4a2511;
-            color: #fff;
-            border: 2px solid #8b4513;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-        }
-
-        #register-form button:hover {
-            background: #8b4513;
-        }
-
-        #back-to-menu {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: transparent;
-            color: #888;
-            border: 1px solid #444;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-        }
-
-        #back-to-menu:hover {
-            color: #fff;
-            border-color: #666;
-        }
-
-        /* Game Over Screen */
+        /* Tela de Game Over */
         #game-over-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.9);
             display: none;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            flex-direction: column;
+            z-index: 998;
         }
 
         #game-over-screen h1 {
             font-size: 4rem;
             color: #ff0000;
-            text-shadow: 0 0 30px #ff0000;
-            margin-bottom: 2rem;
+            text-shadow: 0 0 20px #ff0000;
+            margin-bottom: 1rem;
         }
 
         #game-over-screen p {
-            color: #fff;
             font-size: 1.5rem;
+            color: #aaa;
             margin-bottom: 2rem;
         }
 
         #restart-btn {
             padding: 15px 40px;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             background: #8b0000;
             color: #fff;
             border: 2px solid #ff0000;
             cursor: pointer;
+            transition: all 0.3s;
             font-family: 'Courier New', monospace;
         }
 
-        /* Vitória Screen */
+        #restart-btn:hover {
+            background: #ff0000;
+            transform: scale(1.05);
+        }
+
+        /* Tela de Vitória */
         #victory-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(180deg, #001a00 0%, #000000 100%);
+            background: rgba(0, 50, 0, 0.9);
             display: none;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            flex-direction: column;
+            z-index: 998;
         }
 
         #victory-screen h1 {
-            font-size: 3rem;
+            font-size: 4rem;
             color: #00ff00;
             text-shadow: 0 0 20px #00ff00;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
 
         #victory-screen p {
-            color: #fff;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
+            color: #aaa;
             margin-bottom: 2rem;
-            text-align: center;
             max-width: 600px;
+            text-align: center;
         }
 
-        /* Canvas do Jogo */
-        #game-canvas {
-            display: none;
+        #restart-btn-victory {
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            background: #006600;
+            color: #fff;
+            border: 2px solid #00ff00;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        #restart-btn-victory:hover {
+            background: #00ff00;
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        /* Tela de Configurações */
+        #settings-screen {
             position: fixed;
             top: 0;
             left: 0;
-            image-rendering: pixelated;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 999;
         }
 
-        /* HUD */
+        #settings-screen h2 {
+            font-size: 2.5rem;
+            color: #8b4513;
+            margin-bottom: 2rem;
+        }
+
+        .settings-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .settings-group label {
+            color: #ddd;
+            font-size: 1.2rem;
+        }
+
+        .settings-group select {
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            background: #2a2a2a;
+            color: #fff;
+            border: 2px solid #8b4513;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+
+        #back-to-start {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: #4a2511;
+            color: #fff;
+            border: 2px solid #8b4513;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        #back-to-start:hover {
+            background: #8b4513;
+            transform: scale(1.05);
+        }
+
+        /* Tela de Senha para próximo setor */
+        #password-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 997;
+        }
+
+        #password-screen h2 {
+            font-size: 2rem;
+            color: #8b4513;
+            margin-bottom: 1.5rem;
+        }
+
+        #password-screen p {
+            color: #ddd;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #password-input {
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            background: #2a2a2a;
+            color: #fff;
+            border: 2px solid #8b4513;
+            font-family: 'Courier New', monospace;
+            width: 300px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        #password-submit {
+            padding: 12px 40px;
+            font-size: 1.2rem;
+            background: #4a2511;
+            color: #fff;
+            border: 2px solid #8b4513;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        #password-submit:hover {
+            background: #8b4513;
+        }
+
+        #password-error {
+            color: #ff0000;
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            min-height: 30px;
+        }
+
+        /* Tela de Cadastro */
+        #register-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 999;
+        }
+
+        #register-screen h2 {
+            font-size: 2.5rem;
+            color: #8b4513;
+            margin-bottom: 2rem;
+        }
+
+        #register-form input {
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            background: #2a2a2a;
+            color: #fff;
+            border: 2px solid #8b4513;
+            font-family: 'Courier New', monospace;
+            width: 300px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        #register-form button {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: #4a2511;
+            color: #fff;
+            border: 2px solid #8b4513;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        #register-form button:hover {
+            background: #8b4513;
+            transform: scale(1.05);
+        }
+
+        #back-to-menu {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: #4a2511;
+            color: #fff;
+            border: 2px solid #8b4513;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            margin-top: 1rem;
+        }
+
+        #back-to-menu:hover {
+            background: #8b4513;
+            transform: scale(1.05);
+        }
+
+        /* Animação de portas */
+        @keyframes door-open {
+            0% { transform: scaleX(1); }
+            50% { transform: scaleX(0.3); }
+            100% { transform: scaleX(0); }
+        }
+
+        .door-opening {
+            animation: door-open 1s ease-in-out forwards;
+        }
+
+        #game-canvas {
+            display: block;
+        }
+
         #hud {
             position: fixed;
             top: 20px;
             left: 20px;
-            color: #fff;
-            font-size: 1rem;
+            color: #0f0;
+            font-size: 18px;
+            text-shadow: 0 0 10px #0f0;
             z-index: 100;
-            text-shadow: 2px 2px 4px #000;
+            font-family: 'Courier New', monospace;
+            line-height: 1.8;
         }
 
-        #hud div {
-            margin-bottom: 10px;
-        }
-
-        /* Inventário */
         #inventory {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            border: 2px solid #8b4513;
-            color: #fff;
-            min-width: 200px;
+            bottom: 20px;
+            left: 20px;
+            color: #0f0;
+            font-size: 16px;
+            text-shadow: 0 0 10px #0f0;
             z-index: 100;
+            font-family: 'Courier New', monospace;
         }
 
-        #inventory h3 {
-            margin-bottom: 10px;
-            color: #8b4513;
-        }
-
-        #inventory-items {
-            list-style: none;
-        }
-
-        #inventory-items li {
-            padding: 5px;
-            margin: 5px 0;
-            background: rgba(139, 69, 19, 0.3);
-            border-left: 3px solid #8b4513;
-        }
-
-        /* Mensagens */
-        #message {
+        #message-box {
             position: fixed;
-            bottom: 50px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             background: rgba(0, 0, 0, 0.9);
-            color: #fff;
+            color: #0f0;
             padding: 20px 40px;
-            border: 2px solid #8b4513;
-            display: none;
-            max-width: 600px;
+            border: 2px solid #0f0;
+            text-shadow: 0 0 10px #0f0;
             text-align: center;
-            z-index: 200;
-            animation: fadeIn 0.3s;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            z-index: 500;
+            display: none;
+            max-width: 500px;
+            border-radius: 5px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .hidden {
+            display: none !important;
         }
 
         /* Lanterna */
@@ -330,8 +528,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* Reduzindo o raio da lanterna para iluminar só um pouco ao redor do jogador */
-            background: radial-gradient(circle at 50% 50%, transparent 0%, transparent 80px, rgba(0, 0, 0, 0.95) 150px);
+            /* Reduzindo a visibilidade - overlay mais opaco para escuridão maior */
+            background: radial-gradient(circle at var(--flashlight-x) var(--flashlight-y), 
+                transparent 0%, transparent 60px, rgba(0, 0, 0, 0.92) 150px);
             pointer-events: none;
             z-index: 50;
             display: none;
@@ -347,32 +546,43 @@
             text-shadow: 2px 2px 4px #000;
             display: none;
         }
-
-        .hidden {
-            display: none !important;
-        }
     </style>
 </head>
 <body>
     <!-- Tela Inicial -->
     <div id="start-screen">
         <h1>📚 LIVRARIA ABANDONADA 📚</h1>
-        <p>Você acordou em uma livraria abandonada e misteriosa. Estantes de livros formam um labirinto complexo. Encontre baús secretos, colete códigos e descubra a saída... se conseguir sobreviver.</p>
+        <p id="start-description">Você acordou em uma livraria abandonada e misteriosa. Estantes de livros formam um labirinto complexo. Encontre baús secretos, colete códigos e descubra a saída... se conseguir sobreviver.</p>
         <button id="start-btn">INICIAR JOGO</button>
-        <button id="register-btn">Cadastrar</button>
+        <button id="register-btn">CADASTRO</button>
+        <button id="settings-btn">⚙️ CONFIGURAÇÕES</button>
+    </div>
+
+    <!-- Tela de Configurações -->
+    <div id="settings-screen">
+        <h2>⚙️ CONFIGURAÇÕES</h2>
+        <div class="settings-group">
+            <label for="language-select">Selecione o Idioma:</label>
+            <select id="language-select">
+                <option value="pt-BR">Português (Brasil)</option>
+                <option value="en">English</option>
+                <option value="es">Español</option>
+            </select>
+        </div>
+        <button id="back-to-start">Voltar</button>
     </div>
 
     <!-- Tela de Game Over -->
     <div id="game-over-screen">
-        <h1>VOCÊ MORREU</h1>
-        <p>A entidade te encontrou...</p>
+        <h1 id="gameover-title">VOCÊ MORREU</h1>
+        <p id="gameover-text">A entidade te encontrou...</p>
         <button id="restart-btn">TENTAR NOVAMENTE</button>
     </div>
 
     <!-- Tela de Vitória -->
     <div id="victory-screen">
-        <h1>VOCÊ ESCAPOU!</h1>
-        <p>Parabéns! Você coletou todos os códigos e descobriu o segredo final. Você conseguiu escapar da Livraria Abandonada!</p>
+        <h1 id="victory-title">VOCÊ ESCAPOU!</h1>
+        <p id="victory-text">Parabéns! Você coletou todos os códigos e descobriu o segredo final. Você conseguiu escapar da Livraria Abandonada!</p>
         <button id="restart-btn-victory">JOGAR NOVAMENTE</button>
     </div>
 
@@ -381,14 +591,22 @@
         <canvas id="scare-canvas" width="400" height="400"></canvas>
     </div>
 
-    <!-- Tela de cadastro -->
+    <!-- Tela de Senha para próximo setor -->
+    <div id="password-screen">
+        <h2 id="password-title">INSIRA A SENHA</h2>
+        <p id="password-instruction">Você encontrou uma porta bloqueada. Digite a senha para continuar:</p>
+        <input type="text" id="password-input" placeholder="Digite a senha...">
+        <button id="password-submit">ABRIR PORTA</button>
+        <div id="password-error"></div>
+    </div>
+
+    <!-- Tela de Cadastro -->
     <div id="register-screen">
-        <h2>CADASTRO</h2>
+        <h2 id="register-title">CADASTRO</h2>
         <form id="register-form">
-            <input type="text" placeholder="Nome" required>
-            <input type="email" placeholder="Email" required>
-            <input type="password" placeholder="Senha" required>
-            <button type="submit">CADASTRAR</button>
+            <input type="text" id="register-name" placeholder="Nome" required>
+            <input type="email" id="register-email" placeholder="Email" required>
+            <button type="submit">ENVIAR EMAIL</button>
         </form>
         <button id="back-to-menu">Voltar ao Menu</button>
     </div>
@@ -398,31 +616,145 @@
 
     <!-- HUD -->
     <div id="hud">
-        <div>Setor: <span id="current-level">1</span></div>
-        <!-- Atualizado número total de setores para 8 -->
-        <div>Setores Explorados: <span id="houses-explored">0</span>/8</div>
-        <!-- Atualizado número total de códigos para 6 -->
-        <div>Códigos: <span id="codes-collected">0</span>/6</div>
-        <div>Baús Abertos: <span id="chests-opened">0</span></div>
+        <div id="hud-level">Setor: <span id="current-level">1</span></div>
+        <div id="hud-explored">Setores Explorados: <span id="houses-explored">0</span>/8</div>
+        <div id="hud-codes">Códigos: <span id="codes-collected">0</span>/6</div>
+        <div id="hud-chests">Baús Abertos: <span id="chests-opened">0</span></div>
     </div>
 
     <!-- Inventário -->
     <div id="inventory">
-        <h3>INVENTÁRIO</h3>
-        <ul id="inventory-items">
-            <li>Vazio</li>
-        </ul>
+        <div id="inventory-content"></div>
     </div>
 
-    <!-- Mensagem -->
-    <div id="message"></div>
+    <!-- Mensagens -->
+    <div id="message-box"></div>
 
     <!-- Overlay da Lanterna -->
     <div id="flashlight-overlay"></div>
     <div id="flashlight-battery">🔦 Bateria: <span id="battery-level">100</span>%</div>
 
     <script>
-        // ==================== CONFIGURAÇÃO DO JOGO ====================
+        // ==================== SISTEMA DE IDIOMAS ====================
+        const translations = {
+            'pt-BR': {
+                'start-description': 'Você acordou em uma livraria abandonada e misteriosa. Estantes de livros formam um labirinto complexo. Encontre baús secretos, colete códigos e descubra a saída... se conseguir sobreviver.',
+                'start-btn': 'INICIAR JOGO',
+                'settings-btn': '⚙️ CONFIGURAÇÕES',
+                'gameover-title': 'VOCÊ MORREU',
+                'gameover-text': 'A entidade te encontrou...',
+                'restart-btn': 'TENTAR NOVAMENTE',
+                'victory-title': 'VOCÊ ESCAPOU!',
+                'victory-text': 'Parabéns! Você coletou todos os códigos e descobriu o segredo final. Você conseguiu escapar da Livraria Abandonada!',
+                'restart-btn-victory': 'JOGAR NOVAMENTE',
+                'password-title': 'INSIRA A SENHA',
+                'password-instruction': 'Você encontrou uma porta bloqueada. Digite a senha para continuar:',
+                'password-submit': 'ABRIR PORTA',
+                'password-error-wrong': 'Senha incorreta! Tente novamente.',
+                'hud-level': 'Setor:',
+                'hud-explored': 'Setores Explorados:',
+                'hud-codes': 'Códigos:',
+                'hud-chests': 'Baús Abertos:',
+                'interact-door': '[E] Interagir',
+                'flashlight-hint': 'Lanterna encontrada! Pressione F para ligar/desligar.',
+                'gun-label': 'Arma encontrada! Use Clique para atirar.',
+                'flashlight-empty': 'A bateria da lanterna está vazia!',
+                'respawn-msg': 'Você respawnou! Volte ao local da morte para recuperar seus itens.',
+                'gun-hit': 'Você acertou o fantasma! Ele foi repelido.',
+                'register-title': 'CADASTRO',
+                'register-placeholder-name': 'Nome',
+                'register-placeholder-email': 'Email',
+                'register-placeholder-password': 'Senha',
+                'register-button': 'CADASTRAR',
+                'register-success': 'Cadastro realizado!',
+                'entity-spawn-msg': 'Nova entidade surgiu! Cuidado!'
+            },
+            'en': {
+                'start-description': 'You woke up in a mysterious abandoned library. Bookshelves form a complex maze. Find secret chests, collect codes and discover the exit... if you can survive.',
+                'start-btn': 'START GAME',
+                'settings-btn': '⚙️ SETTINGS',
+                'gameover-title': 'YOU DIED',
+                'gameover-text': 'The entity found you...',
+                'restart-btn': 'TRY AGAIN',
+                'victory-title': 'YOU ESCAPED!',
+                'victory-text': 'Congratulations! You collected all codes and discovered the final secret. You managed to escape the Abandoned Library!',
+                'restart-btn-victory': 'PLAY AGAIN',
+                'password-title': 'ENTER PASSWORD',
+                'password-instruction': 'You found a locked door. Enter the password to continue:',
+                'password-submit': 'OPEN DOOR',
+                'password-error-wrong': 'Wrong password! Try again.',
+                'hud-level': 'Sector:',
+                'hud-explored': 'Sectors Explored:',
+                'hud-codes': 'Codes:',
+                'hud-chests': 'Chests Opened:',
+                'interact-door': '[E] Interact',
+                'flashlight-hint': 'Flashlight found! Press F to turn on/off.',
+                'gun-label': 'Gun found! Use Click to shoot.',
+                'flashlight-empty': 'Flashlight battery is empty!',
+                'respawn-msg': 'You respawned! Return to your death location to recover your items.',
+                'gun-hit': 'You hit the ghost! It was repelled.',
+                'register-title': 'REGISTER',
+                'register-placeholder-name': 'Name',
+                'register-placeholder-email': 'Email',
+                'register-placeholder-password': 'Password',
+                'register-button': 'REGISTER',
+                'register-success': 'Registration completed!',
+                'entity-spawn-msg': 'New entity appeared! Be careful!'
+            },
+            'es': {
+                'start-description': 'Despertaste en una misteriosa biblioteca abandonada. Las estanterías forman un laberinto complejo. Encuentra cofres secretos, recoge códigos y descubre la salida... si logras sobrevivir.',
+                'start-btn': 'INICIAR JUEGO',
+                'settings-btn': '⚙️ CONFIGURACIÓN',
+                'gameover-title': '¡MORISTE!',
+                'gameover-text': 'La entidad te encontró...',
+                'restart-btn': 'INTENTAR DE NUEVO',
+                'victory-title': '¡ESCAPASTE!',
+                'victory-text': '¡Felicidades! Recolectaste todos los códigos y descubriste el secreto final. ¡Lograste escapar de la Biblioteca Abandonada!',
+                'restart-btn-victory': 'JUGAR DE NUEVO',
+                'password-title': 'INGRESA LA CONTRASEÑA',
+                'password-instruction': 'Encontraste una puerta bloqueada. Ingresa la contraseña para continuar:',
+                'password-submit': 'ABRIR PUERTA',
+                'password-error-wrong': '¡Contraseña incorrecta! Intenta de nuevo.',
+                'hud-level': 'Sector:',
+                'hud-explored': 'Sectores Explorados:',
+                'hud-codes': 'Códigos:',
+                'hud-chests': 'Cofres Abiertos:',
+                'interact-door': '[E] Interactuar',
+                'flashlight-hint': '¡Linterna encontrada! Presiona F para encender/apagar.',
+                'gun-label': '¡Arma encontrada! Usa Clic para disparar.',
+                'flashlight-empty': '¡La batería de la linterna está vacía!',
+                'respawn-msg': '¡Reapareciste! Regresa al lugar de tu muerte para recuperar tus objetos.',
+                'gun-hit': '¡Acertaste al fantasma! Fue repelido.',
+                'register-title': 'REGISTRO',
+                'register-placeholder-name': 'Nombre',
+                'register-placeholder-email': 'Correo',
+                'register-placeholder-password': 'Contraseña',
+                'register-button': 'REGISTRARSE',
+                'register-success': '¡Registro completado!',
+                'entity-spawn-msg': '¡Nueva entidad apareció! ¡Ten cuidado!'
+            }
+        };
+
+        let currentLanguage = localStorage.getItem('gameLanguage') || 'pt-BR';
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('gameLanguage', lang);
+            updateUILanguage();
+        }
+
+        function getTranslation(key) {
+            return translations[currentLanguage][key] || translations['pt-BR'][key];
+        }
+
+        function updateUILanguage() {
+            document.getElementById('start-description').textContent = getTranslation('start-description');
+            document.getElementById('start-btn').textContent = getTranslation('start-btn');
+            document.getElementById('settings-btn').textContent = getTranslation('settings-btn');
+            document.getElementById('register-btn').textContent = getTranslation('register-title'); // Assuming 'register-title' also maps to button text
+        }
+
+        // ==================== SETUP INICIAL ====================
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
@@ -439,16 +771,20 @@
             flashlightBattery: 100,
             entityActive: false,
             secretDoorsUnlocked: [],
-            deathLocation: null, // { x, y, level, items }
+            deathLocation: null,
             maxStamina: 100,
             currentStamina: 100,
             staminaRegenRate: 0.3,
             isRunning: false,
             hasGun: false,
             ammo: 0,
-            bullets: [], // array de projéteis ativos
+            bullets: [],
             hasDetector: false,
-            detectorCooldown: 0
+            detectorCooldown: 0,
+            entitiesInLevel: 1,
+            levelStartTime: 0,
+            spawnedPasswords: {},
+            currentPassword: null
         };
 
         const player = {
@@ -458,7 +794,7 @@
             speed: 4.5,
             runSpeed: 7.5,
             angle: 0,
-            direction: 'down' // para animação do sprite
+            direction: 'down'
         };
 
         const entity = {
@@ -468,6 +804,8 @@
             speed: 1.8,
             active: false
         };
+
+        let entities = [];
 
         // Controles
         const keys = {};
@@ -479,7 +817,7 @@
                     game.flashlightOn = !game.flashlightOn;
                     updateFlashlight();
                 } else {
-                    showMessage("A bateria da lanterna está vazia!");
+                    showMessage(getTranslation('flashlight-empty'));
                 }
             }
             
@@ -495,7 +833,6 @@
                 const mouseX = e.clientX - rect.left;
                 const mouseY = e.clientY - rect.top;
                 
-                // Criar projétil na direção do clique
                 const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
                 game.bullets.push({
                     x: player.x,
@@ -515,123 +852,29 @@
         function drawPlayer(x, y) {
             const pixelSize = 2;
             
-            // Corpo (camisa azul)
             ctx.fillStyle = '#3366cc';
             ctx.fillRect(x - 4 * pixelSize, y - 2 * pixelSize, 8 * pixelSize, 6 * pixelSize);
             
-            // Cabeça (pele)
             ctx.fillStyle = '#ffcc99';
             ctx.fillRect(x - 3 * pixelSize, y - 6 * pixelSize, 6 * pixelSize, 4 * pixelSize);
             
-            // Cabelo (marrom)
             ctx.fillStyle = '#4a2511';
             ctx.fillRect(x - 3 * pixelSize, y - 8 * pixelSize, 6 * pixelSize, 3 * pixelSize);
             
-            // Boné (azul escuro)
-            ctx.fillStyle = '#1a3a5a';
+            ctx.fillStyle = '#1a1a1a';
             ctx.fillRect(x - 4 * pixelSize, y - 9 * pixelSize, 8 * pixelSize, 2 * pixelSize);
             
-            // Olhos
-            ctx.fillStyle = '#000';
-            ctx.fillRect(x - 2 * pixelSize, y - 5 * pixelSize, pixelSize, pixelSize);
-            ctx.fillRect(x + 1 * pixelSize, y - 5 * pixelSize, pixelSize, pixelSize);
+            ctx.fillStyle = '#ffcc99';
+            ctx.fillRect(x - 2 * pixelSize, y - 5 * pixelSize, 1 * pixelSize, 3 * pixelSize);
+            ctx.fillRect(x + 1 * pixelSize, y - 5 * pixelSize, 1 * pixelSize, 3 * pixelSize);
             
-            // Pernas (calça azul escura)
-            ctx.fillStyle = '#1a1a4a';
-            ctx.fillRect(x - 3 * pixelSize, y + 4 * pixelSize, 2 * pixelSize, 4 * pixelSize);
-            ctx.fillRect(x + 1 * pixelSize, y + 4 * pixelSize, 2 * pixelSize, 4 * pixelSize);
-            
-            // Sapatos (preto)
-            ctx.fillStyle = '#000';
-            ctx.fillRect(x - 3 * pixelSize, y + 8 * pixelSize, 2 * pixelSize, pixelSize);
-            ctx.fillRect(x + 1 * pixelSize, y + 8 * pixelSize, 2 * pixelSize, pixelSize);
-        }
-
-        function drawEntity(x, y) {
-            const level = game.currentLevel;
-            const pixelSize = 2;
-            
-            // Variante 1: Fantasma Branco (Níveis 2-3)
-            if (level <= 3) {
-                ctx.fillStyle = '#ffffff';
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = '#ffffff';
-                ctx.fillRect(x - 5 * pixelSize, y - 4 * pixelSize, 10 * pixelSize, 12 * pixelSize);
-                ctx.fillRect(x - 4 * pixelSize, y - 8 * pixelSize, 8 * pixelSize, 5 * pixelSize);
-                
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(x - 3 * pixelSize, y - 6 * pixelSize, 2 * pixelSize, 3 * pixelSize);
-                ctx.fillRect(x + 1 * pixelSize, y - 6 * pixelSize, 2 * pixelSize, 3 * pixelSize);
-                ctx.fillRect(x - 2 * pixelSize, y - 2 * pixelSize, 4 * pixelSize, pixelSize);
-                ctx.fillRect(x - 3 * pixelSize, y - 1 * pixelSize, pixelSize, pixelSize);
-                ctx.fillRect(x + 2 * pixelSize, y - 1 * pixelSize, pixelSize, pixelSize);
+            if (game.flashlightOn && game.currentLevel >= 3) {
+                ctx.fillStyle = 'rgba(255, 255, 100, 0.3)';
+                ctx.beginPath();
+                ctx.arc(x, y, 150, -Math.PI / 4, Math.PI / 4);
+                ctx.lineTo(x, y);
+                ctx.fill();
             }
-            // Variante 2: Sombra Vermelha (Níveis 4-5)
-            else if (level <= 5) {
-                ctx.fillStyle = '#ff0000';
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = '#ff0000';
-                ctx.fillRect(x - 6 * pixelSize, y - 5 * pixelSize, 12 * pixelSize, 14 * pixelSize);
-                ctx.fillRect(x - 5 * pixelSize, y - 10 * pixelSize, 10 * pixelSize, 6 * pixelSize);
-                
-                // Olhos brilhantes
-                ctx.fillStyle = '#ffff00';
-                ctx.fillRect(x - 3 * pixelSize, y - 7 * pixelSize, 2 * pixelSize, 4 * pixelSize);
-                ctx.fillRect(x + 1 * pixelSize, y - 7 * pixelSize, 2 * pixelSize, 4 * pixelSize);
-                
-                // Boca distorcida
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(x - 3 * pixelSize, y - 1 * pixelSize, 6 * pixelSize, 2 * pixelSize);
-                ctx.fillRect(x - 4 * pixelSize, y + 1 * pixelSize, pixelSize, pixelSize);
-                ctx.fillRect(x + 3 * pixelSize, y + 1 * pixelSize, pixelSize, pixelSize);
-            }
-            // Variante 3: Criatura Púrpura (Níveis 6-7)
-            else if (level <= 7) {
-                ctx.fillStyle = '#8b00ff';
-                ctx.shadowBlur = 25;
-                ctx.shadowColor = '#8b00ff';
-                ctx.fillRect(x - 7 * pixelSize, y - 6 * pixelSize, 14 * pixelSize, 16 * pixelSize);
-                ctx.fillRect(x - 6 * pixelSize, y - 12 * pixelSize, 12 * pixelSize, 7 * pixelSize);
-                
-                // Múltiplos olhos
-                ctx.fillStyle = '#00ff00';
-                ctx.fillRect(x - 4 * pixelSize, y - 9 * pixelSize, 2 * pixelSize, 2 * pixelSize);
-                ctx.fillRect(x + 2 * pixelSize, y - 9 * pixelSize, 2 * pixelSize, 2 * pixelSize);
-                ctx.fillRect(x - 1 * pixelSize, y - 7 * pixelSize, 2 * pixelSize, 2 * pixelSize);
-                
-                // Tentáculos
-                ctx.fillStyle = '#6b00bf';
-                ctx.fillRect(x - 8 * pixelSize, y + 4 * pixelSize, 2 * pixelSize, 6 * pixelSize);
-                ctx.fillRect(x + 6 * pixelSize, y + 4 * pixelSize, 2 * pixelSize, 6 * pixelSize);
-            }
-            // Variante 4: Abominação Final (Nível 8)
-            else {
-                ctx.fillStyle = '#000000';
-                ctx.shadowBlur = 30;
-                ctx.shadowColor = '#ff0000';
-                ctx.fillRect(x - 8 * pixelSize, y - 7 * pixelSize, 16 * pixelSize, 18 * pixelSize);
-                ctx.fillRect(x - 7 * pixelSize, y - 14 * pixelSize, 14 * pixelSize, 8 * pixelSize);
-                
-                // Olhos vermelhos brilhantes
-                ctx.fillStyle = '#ff0000';
-                ctx.fillRect(x - 5 * pixelSize, y - 10 * pixelSize, 3 * pixelSize, 5 * pixelSize);
-                ctx.fillRect(x + 2 * pixelSize, y - 10 * pixelSize, 3 * pixelSize, 5 * pixelSize);
-                
-                // Boca com dentes
-                ctx.fillStyle = '#ff0000';
-                ctx.fillRect(x - 4 * pixelSize, y - 2 * pixelSize, 8 * pixelSize, 3 * pixelSize);
-                ctx.fillStyle = '#ffffff';
-                for (let i = -3; i < 4; i++) {
-                    ctx.fillRect(x + i * pixelSize, y - 1 * pixelSize, pixelSize, 2 * pixelSize);
-                }
-                
-                // Garras
-                ctx.fillStyle = '#ff0000';
-                ctx.fillRect(x - 10 * pixelSize, y + 2 * pixelSize, 3 * pixelSize, 8 * pixelSize);
-                ctx.fillRect(x + 7 * pixelSize, y + 2 * pixelSize, 3 * pixelSize, 8 * pixelSize);
-            }
-            
-            ctx.shadowBlur = 0;
         }
 
         function drawBookshelf(x, y, width, height) {
@@ -666,548 +909,108 @@
             }
         }
 
-        function drawChest(x, y, opened = false) {
-            const pixelSize = 2;
-            
-            if (opened) {
-                // Baú aberto (marrom claro)
-                ctx.fillStyle = '#8b6914';
-                ctx.fillRect(x - 4 * pixelSize, y - 2 * pixelSize, 8 * pixelSize, 6 * pixelSize);
-                ctx.fillStyle = '#daa520';
-                ctx.fillRect(x - 3 * pixelSize, y - 1 * pixelSize, 6 * pixelSize, 4 * pixelSize);
-                
-                // Tampa aberta
-                ctx.fillStyle = '#8b6914';
-                ctx.fillRect(x - 4 * pixelSize, y - 6 * pixelSize, 8 * pixelSize, 3 * pixelSize);
-            } else {
-                // Baú fechado (marrom escuro)
-                ctx.fillStyle = '#654321';
-                ctx.fillRect(x - 4 * pixelSize, y - 3 * pixelSize, 8 * pixelSize, 6 * pixelSize);
-                
-                // Tampa
-                ctx.fillStyle = '#8b6914';
-                ctx.fillRect(x - 4 * pixelSize, y - 5 * pixelSize, 8 * pixelSize, 3 * pixelSize);
-                
-                // Fechadura
-                ctx.fillStyle = '#ffd700';
-                ctx.fillRect(x - pixelSize, y - 1 * pixelSize, 2 * pixelSize, 2 * pixelSize);
-            }
-        }
-
-        function drawDeathBag(x, y) {
-            const pixelSize = 2;
-            
-            // Mochila (marrom escuro)
-            ctx.fillStyle = '#654321';
-            ctx.fillRect(x - 4 * pixelSize, y - 4 * pixelSize, 8 * pixelSize, 8 * pixelSize);
-            
-            // Detalhes da mochila
-            ctx.fillStyle = '#8b6914';
-            ctx.fillRect(x - 3 * pixelSize, y - 3 * pixelSize, 6 * pixelSize, 6 * pixelSize);
-            
-            // Fivela
-            ctx.fillStyle = '#c0c0c0';
-            ctx.fillRect(x - pixelSize, y - pixelSize, 2 * pixelSize, 2 * pixelSize);
-            
-            // Efeito de brilho pulsante
-            const pulse = Math.sin(Date.now() / 500) * 0.3 + 0.7;
-            ctx.shadowBlur = 10 * pulse;
-            ctx.shadowColor = '#ffff00';
-            ctx.strokeStyle = '#ffff00';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x - 5 * pixelSize, y - 5 * pixelSize, 10 * pixelSize, 10 * pixelSize);
-            ctx.shadowBlur = 0;
-        }
-
         function drawWall(x, y, width, height) {
-            // Parede de pedra escura
-            ctx.fillStyle = '#2a2a2a';
+            ctx.fillStyle = '#3a2a1a';
             ctx.fillRect(x, y, width, height);
-            
-            // Textura de pedra
-            ctx.fillStyle = '#1a1a1a';
-            const pixelSize = 4;
-            for (let i = 0; i < width / pixelSize; i++) {
-                for (let j = 0; j < height / pixelSize; j++) {
-                    if (Math.random() > 0.7) {
-                        ctx.fillRect(x + i * pixelSize, y + j * pixelSize, pixelSize, pixelSize);
-                    }
-                }
-            }
-            
-            // Borda
-            ctx.strokeStyle = '#000';
+            ctx.strokeStyle = '#2a1a0a';
             ctx.lineWidth = 2;
             ctx.strokeRect(x, y, width, height);
         }
 
-        function drawSpiderweb(x, y, size) {
+        function drawEntity(x, y) {
             const pixelSize = 2;
             
-            // Fios da teia
-            ctx.strokeStyle = '#cccccc';
-            ctx.lineWidth = 1;
-            ctx.globalAlpha = 0.6;
+            ctx.fillStyle = '#ff6b9d';
+            ctx.globalAlpha = 0.8;
             
-            // Fios radiais
+            // Cabeça
+            ctx.fillRect(x - 5 * pixelSize, y - 8 * pixelSize, 10 * pixelSize, 8 * pixelSize);
+            
+            // Corpo
+            ctx.fillRect(x - 6 * pixelSize, y, 12 * pixelSize, 8 * pixelSize);
+            
+            // Olhos brilhantes
+            ctx.fillStyle = '#ffff00';
+            ctx.fillRect(x - 4 * pixelSize, y - 6 * pixelSize, 2 * pixelSize, 2 * pixelSize);
+            ctx.fillRect(x + 2 * pixelSize, y - 6 * pixelSize, 2 * pixelSize, 2 * pixelSize);
+            
+            ctx.globalAlpha = 1.0;
+        }
+
+        function drawSpiderweb(x, y, size) {
+            ctx.strokeStyle = 'rgba(200, 200, 200, 0.3)';
+            ctx.lineWidth = 1;
+            
             for (let i = 0; i < 8; i++) {
-                const angle = (Math.PI * 2 / 8) * i;
+                const angle = (i / 8) * Math.PI * 2;
                 ctx.beginPath();
                 ctx.moveTo(x, y);
                 ctx.lineTo(x + Math.cos(angle) * size, y + Math.sin(angle) * size);
                 ctx.stroke();
             }
             
-            // Círculos concêntricos
-            for (let r = size / 4; r <= size; r += size / 4) {
+            for (let i = 0; i < 3; i++) {
                 ctx.beginPath();
-                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.arc(x, y, (i + 1) * (size / 3), 0, Math.PI * 2);
                 ctx.stroke();
             }
-            
-            ctx.globalAlpha = 1;
-        }
-
-        function drawPumpkin(x, y) {
-            const pixelSize = 2;
-            
-            // Corpo da abóbora (laranja)
-            ctx.fillStyle = '#ff8800';
-            ctx.fillRect(x - 6 * pixelSize, y - 4 * pixelSize, 12 * pixelSize, 8 * pixelSize);
-            
-            // Linhas verticais da abóbora
-            ctx.fillStyle = '#cc6600';
-            ctx.fillRect(x - 4 * pixelSize, y - 4 * pixelSize, pixelSize, 8 * pixelSize);
-            ctx.fillRect(x - pixelSize, y - 4 * pixelSize, pixelSize, 8 * pixelSize);
-            ctx.fillRect(x + 2 * pixelSize, y - 4 * pixelSize, pixelSize, 8 * pixelSize);
-            
-            // Cabo (verde)
-            ctx.fillStyle = '#228b22';
-            ctx.fillRect(x - pixelSize, y - 6 * pixelSize, 2 * pixelSize, 3 * pixelSize);
-            
-            // Rosto assustador
-            ctx.fillStyle = '#000000';
-            // Olhos triangulares
-            ctx.beginPath();
-            ctx.moveTo(x - 4 * pixelSize, y - 2 * pixelSize);
-            ctx.lineTo(x - 2 * pixelSize, y - 2 * pixelSize);
-            ctx.lineTo(x - 3 * pixelSize, y);
-            ctx.fill();
-            
-            ctx.beginPath();
-            ctx.moveTo(x + 2 * pixelSize, y - 2 * pixelSize);
-            ctx.lineTo(x + 4 * pixelSize, y - 2 * pixelSize);
-            ctx.lineTo(x + 3 * pixelSize, y);
-            ctx.fill();
-            
-            // Boca serrilhada
-            ctx.fillRect(x - 4 * pixelSize, y + pixelSize, 8 * pixelSize, pixelSize);
-            ctx.fillRect(x - 4 * pixelSize, y + pixelSize, pixelSize, 2 * pixelSize);
-            ctx.fillRect(x - 2 * pixelSize, y + pixelSize, pixelSize, 2 * pixelSize);
-            ctx.fillRect(x, y + pixelSize, pixelSize, 2 * pixelSize);
-            ctx.fillRect(x + 2 * pixelSize, y + pixelSize, pixelSize, 2 * pixelSize);
         }
 
         function drawSkull(x, y) {
-            const pixelSize = 2;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillRect(x - 15, y - 20, 30, 40);
             
-            // Crânio (branco/bege)
-            ctx.fillStyle = '#f5f5dc';
-            ctx.fillRect(x - 4 * pixelSize, y - 4 * pixelSize, 8 * pixelSize, 6 * pixelSize);
-            ctx.fillRect(x - 5 * pixelSize, y - 2 * pixelSize, 10 * pixelSize, 4 * pixelSize);
-            
-            // Olhos (preto)
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(x - 3 * pixelSize, y - 2 * pixelSize, 2 * pixelSize, 2 * pixelSize);
-            ctx.fillRect(x + pixelSize, y - 2 * pixelSize, 2 * pixelSize, 2 * pixelSize);
-            
-            // Nariz (triângulo)
-            ctx.beginPath();
-            ctx.moveTo(x - pixelSize, y);
-            ctx.lineTo(x + pixelSize, y);
-            ctx.lineTo(x, y + pixelSize);
-            ctx.fill();
-            
-            // Dentes
-            ctx.fillRect(x - 3 * pixelSize, y + 2 * pixelSize, pixelSize, 2 * pixelSize);
-            ctx.fillRect(x - pixelSize, y + 2 * pixelSize, pixelSize, 2 * pixelSize);
-            ctx.fillRect(x + pixelSize, y + 2 * pixelSize, pixelSize, 2 * pixelSize);
+            ctx.fillStyle = 'rgba(100, 100, 100, 0.15)';
+            ctx.fillRect(x - 10, y - 15, 8, 8);
+            ctx.fillRect(x + 2, y - 15, 8, 8);
         }
 
-        function drawDetector(x, y) {
-            const pixelSize = 2;
+        function drawPumpkin(x, y) {
+            ctx.fillStyle = '#ff8800';
+            ctx.fillRect(x - 8, y - 10, 16, 20);
             
-            // Corpo do detector (cinza metálico)
-            ctx.fillStyle = '#808080';
-            ctx.fillRect(x - 6 * pixelSize, y - 8 * pixelSize, 12 * pixelSize, 16 * pixelSize);
-            
-            // Tela do detector (verde)
-            ctx.fillStyle = '#00ff00';
-            ctx.fillRect(x - 4 * pixelSize, y - 6 * pixelSize, 8 * pixelSize, 8 * pixelSize);
-            
-            // Detalhes metálicos
-            ctx.fillStyle = '#606060';
-            ctx.fillRect(x - 5 * pixelSize, y - 7 * pixelSize, 10 * pixelSize, pixelSize);
-            ctx.fillRect(x - 5 * pixelSize, y + 2 * pixelSize, 10 * pixelSize, pixelSize);
-            
-            // Antena
-            ctx.fillStyle = '#404040';
-            ctx.fillRect(x - pixelSize, y - 10 * pixelSize, 2 * pixelSize, 3 * pixelSize);
-            ctx.fillStyle = '#ff0000';
-            ctx.fillRect(x - pixelSize, y - 11 * pixelSize, 2 * pixelSize, 2 * pixelSize);
-            
-            // Efeito de brilho pulsante
-            const pulse = Math.sin(Date.now() / 300) * 0.3 + 0.7;
-            ctx.shadowBlur = 8 * pulse;
-            ctx.shadowColor = '#00ff00';
-            ctx.strokeStyle = '#00ff00';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x - 7 * pixelSize, y - 9 * pixelSize, 14 * pixelSize, 18 * pixelSize);
-            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#2a2a2a';
+            ctx.fillRect(x - 2, y - 5, 4, 6);
+            ctx.fillRect(x - 4, y, 3, 3);
+            ctx.fillRect(x + 1, y, 3, 3);
         }
 
-        function showGhostAlert(hasGhost) {
-            const alertDiv = document.createElement('div');
-            alertDiv.style.position = 'fixed';
-            alertDiv.style.top = '50%';
-            alertDiv.style.left = '50%';
-            alertDiv.style.transform = 'translate(-50%, -50%)';
-            alertDiv.style.padding = '40px 60px';
-            alertDiv.style.fontSize = '2rem';
-            alertDiv.style.fontWeight = 'bold';
-            alertDiv.style.zIndex = '300';
-            alertDiv.style.textAlign = 'center';
-            alertDiv.style.fontFamily = 'Courier New, monospace';
-            alertDiv.style.border = '4px solid';
-            alertDiv.style.animation = 'fadeIn 0.3s';
+        function checkBookshelfCollision(x, y) {
+            const level = levels[game.currentLevel];
+            if (!level.bookshelves) return false;
             
-            if (hasGhost) {
-                alertDiv.style.background = 'rgba(255, 0, 0, 0.95)';
-                alertDiv.style.color = '#fff';
-                alertDiv.style.borderColor = '#ff0000';
-                alertDiv.style.textShadow = '0 0 20px #ff0000';
-                alertDiv.innerHTML = '⚠️ PERIGO!<br>FANTASMA DETECTADO<br>NO PRÓXIMO SETOR!';
-            } else {
-                alertDiv.style.background = 'rgba(0, 255, 0, 0.95)';
-                alertDiv.style.color = '#000';
-                alertDiv.style.borderColor = '#00ff00';
-                alertDiv.style.textShadow = '0 0 10px #00ff00';
-                alertDiv.innerHTML = '✓ SEGURO<br>NENHUM FANTASMA<br>DETECTADO';
+            for (let shelf of level.bookshelves) {
+                if (x > shelf.x - 20 && x < shelf.x + shelf.width + 20 &&
+                    y > shelf.y - 20 && y < shelf.y + shelf.height + 20) {
+                    return true;
+                }
             }
-            
-            document.body.appendChild(alertDiv);
-            
-            setTimeout(() => {
-                alertDiv.remove();
-            }, 3000);
+            return false;
         }
 
-        // ==================== DEFINIÇÃO DOS NÍVEIS ====================
-        const levels = {
-            1: {
-                name: "Entrada da Livraria",
-                description: "Você entra em uma livraria abandonada. O ar está pesado e há um cheiro de mofo.",
-                bgColor: "#2a1a1a",
-                wallColor: "#4a2a1a",
-                floorColor: "#3a2a1a",
-                walls: [],
-                bookshelves: [
-                    // Labirinto complexo com múltiplos caminhos
-                    // Parede superior
-                    { x: canvas.width * 0.15, y: canvas.height * 0.08, width: 150, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.08, width: 120, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.08, width: 150, height: 80 },
-                    { x: canvas.width * 0.75, y: canvas.height * 0.08, width: 120, height: 80 },
-                    
-                    // Corredores verticais e horizontais entrelaçados
-                    { x: canvas.width * 0.12, y: canvas.height * 0.22, width: 80, height: 150 },
-                    { x: canvas.width * 0.12, y: canvas.height * 0.5, width: 80, height: 180 },
-                    
-                    { x: canvas.width * 0.25, y: canvas.height * 0.25, width: 120, height: 80 },
-                    { x: canvas.width * 0.25, y: canvas.height * 0.45, width: 80, height: 120 },
-                    { x: canvas.width * 0.25, y: canvas.height * 0.7, width: 120, height: 80 },
-                    
-                    { x: canvas.width * 0.42, y: canvas.height * 0.2, width: 80, height: 180 },
-                    { x: canvas.width * 0.42, y: canvas.height * 0.55, width: 80, height: 200 },
-                    
-                    { x: canvas.width * 0.55, y: canvas.height * 0.3, width: 150, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.5, width: 120, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.7, width: 150, height: 80 },
-                    
-                    { x: canvas.width * 0.72, y: canvas.height * 0.18, width: 80, height: 150 },
-                    { x: canvas.width * 0.72, y: canvas.height * 0.45, width: 80, height: 120 },
-                    { x: canvas.width * 0.72, y: canvas.height * 0.72, width: 80, height: 150 }
-                ],
-                doors: [
-                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 2, label: "→ Setor 2" }
-                ],
-                items: [
-                    { x: canvas.width * 0.2, y: canvas.height * 0.35, type: "note", content: "Nota: 'Esta livraria guarda segredos sombrios. Procure os baús escondidos entre as estantes.'" },
-                    { x: canvas.width * 0.75, y: canvas.height * 0.55, type: "battery", content: "Pilha encontrada! +50% de bateria" }
-                ],
-                chests: [],
-                entitySpawn: false,
-                detector: { x: canvas.width * 0.18, y: canvas.height * 0.15 }
-            },
-            2: {
-                name: "Corredor dos Livros Antigos",
-                description: "Estantes altas bloqueiam sua visão...",
-                bgColor: "#1a1a1a",
-                wallColor: "#2a2a2a",
-                floorColor: "#1a1a1a",
-                walls: [],
-                bookshelves: [
-                    // Entrada lateral esquerda (livre para spawn)
-                    { x: canvas.width * 0.2, y: canvas.height * 0.1, width: 100, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.1, width: 120, height: 80 },
-                    
-                    // Labirinto de estantes - corredor sinuoso
-                    { x: canvas.width * 0.15, y: canvas.height * 0.25, width: 80, height: 150 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.55, width: 80, height: 180 },
-                    
-                    { x: canvas.width * 0.3, y: canvas.height * 0.3, width: 150, height: 80 },
-                    { x: canvas.width * 0.3, y: canvas.height * 0.5, width: 120, height: 80 },
-                    { x: canvas.width * 0.3, y: canvas.height * 0.7, width: 150, height: 80 },
-                    
-                    { x: canvas.width * 0.5, y: canvas.height * 0.15, width: 80, height: 180 },
-                    { x: canvas.width * 0.5, y: canvas.height * 0.45, width: 80, height: 150 },
-                    { x: canvas.width * 0.5, y: canvas.height * 0.7, width: 80, height: 120 },
-                    
-                    { x: canvas.width * 0.65, y: canvas.height * 0.2, width: 120, height: 80 },
-                    { x: canvas.width * 0.65, y: canvas.height * 0.4, width: 150, height: 80 },
-                    { x: canvas.width * 0.65, y: canvas.height * 0.6, width: 100, height: 80 },
-                    
-                    { x: canvas.width * 0.78, y: canvas.height * 0.25, width: 80, height: 200 },
-                    { x: canvas.width * 0.78, y: canvas.height * 0.6, width: 80, height: 150 }
-                ],
-                doors: [
-                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 1, label: "← Setor 1" },
-                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 3, label: "→ Setor 3" }
-                ],
-                items: [
-                    { x: canvas.width / 2, y: canvas.height / 2, type: "code", content: "Código: 4721", code: "4721" },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.75, type: "battery", content: "Pilha encontrada! +50% de bateria" }
-                ],
-                chests: [
-                    { x: canvas.width * 0.35, y: canvas.height * 0.55, locked: true, code: "4721", content: "Chave encontrada!" }
-                ],
-                entitySpawn: false
-            },
-            3: {
-                name: "Sala de Leitura Sombria",
-                description: "A escuridão é quase total aqui. Você encontra uma lanterna.",
-                bgColor: "#0a0a0a",
-                wallColor: "#1a1a1a",
-                floorColor: "#0a0a0a",
-                walls: [],
-                bookshelves: [
-                    // Área de spawn livre no canto superior esquerdo
-                    { x: canvas.width * 0.25, y: canvas.height * 0.08, width: 150, height: 80 },
-                    { x: canvas.width * 0.5, y: canvas.height * 0.08, width: 120, height: 80 },
-                    
-                    // Estantes formando corredores escuros
-                    { x: canvas.width * 0.15, y: canvas.height * 0.22, width: 80, height: 150 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.48, width: 80, height: 180 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.75, width: 80, height: 100 },
-                    
-                    { x: canvas.width * 0.32, y: canvas.height * 0.25, width: 120, height: 80 },
-                    { x: canvas.width * 0.32, y: canvas.height * 0.42, width: 150, height: 80 },
-                    { x: canvas.width * 0.32, y: canvas.height * 0.6, width: 120, height: 80 },
-                    { x: canvas.width * 0.32, y: canvas.height * 0.78, width: 150, height: 80 },
-                    
-                    { x: canvas.width * 0.55, y: canvas.height * 0.2, width: 80, height: 180 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.5, width: 80, height: 150 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.75, width: 80, height: 120 },
-                    
-                    { x: canvas.width * 0.7, y: canvas.height * 0.15, width: 120, height: 80 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.35, width: 100, height: 80 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.55, width: 120, height: 80 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.72, width: 100, height: 80 }
-                ],
-                doors: [
-                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 2, label: "← Setor 2" },
-                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 4, label: "→ Setor 4" }
-                ],
-                items: [
-                    { x: canvas.width * 0.3, y: canvas.height * 0.3, type: "flashlight", content: "Lanterna encontrada! Pressione F para ligar/desligar." },
-                    { x: canvas.width * 0.6, y: canvas.height * 0.7, type: "battery", content: "Pilha encontrada! +50% de bateria" }
-                ],
-                chests: [],
-                entitySpawn: true,
-                /* Pistola aparece no centro do setor 3 */
-                gun: { x: canvas.width * 0.5, y: canvas.height * 0.5 }
-            },
-            4: {
-                name: "Arquivo Proibido",
-                description: "Documentos antigos e proibidos cobrem as mesas.",
-                bgColor: "#1a0a0a",
-                wallColor: "#2a1a1a",
-                floorColor: "#1a0a0a",
-                walls: [],
-                // Reorganizando estantes para formar corredores em espiral
-                bookshelves: [
-                    // Espiral de estantes
-                    { x: canvas.width * 0.15, y: canvas.height * 0.2, width: 150, height: 80 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.5, width: 80, height: 200 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.7, width: 200, height: 80 },
-                    { x: canvas.width * 0.6, y: canvas.height * 0.6, width: 80, height: 150 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.3, width: 120, height: 80 },
-                    { x: canvas.width * 0.5, y: canvas.height * 0.15, width: 80, height: 120 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.35, width: 100, height: 80 }
-                ],
-                doors: [
-                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 3, label: "← Setor 3" },
-                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: true, leadsTo: 5, label: "→ Setor 5 (Trancado)" }
-                ],
-                items: [
-                    { x: canvas.width * 0.45, y: canvas.height * 0.5, type: "note", content: "Nota: 'A entidade está cada vez mais próxima. Não olhe para trás.'" },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.6, type: "battery", content: "Pilha encontrada! +50% de bateria" }
-                ],
-                chests: [],
-                entitySpawn: true,
-                /* Pistola aparece no centro do setor 3 */
-                gun: { x: canvas.width * 0.5, y: canvas.height * 0.5 },
-                /* Munição no setor 4 */
-                ammo: { x: canvas.width * 0.25, y: canvas.height * 0.4 }
-            },
-            5: {
-                name: "Câmara Secreta",
-                description: "Uma sala escondida com símbolos estranhos nas paredes.",
-                bgColor: "#0a0a1a",
-                wallColor: "#1a1a2a",
-                floorColor: "#0a0a1a",
-                walls: [],
-                // Reorganizando estantes para formar corredores em cruz
-                bookshelves: [
-                    // Padrão em cruz
-                    { x: canvas.width * 0.3, y: canvas.height * 0.15, width: 80, height: 150 },
-                    { x: canvas.width * 0.3, y: canvas.height * 0.55, width: 80, height: 150 },
-                    { x: canvas.width * 0.6, y: canvas.height * 0.15, width: 80, height: 150 },
-                    { x: canvas.width * 0.6, y: canvas.height * 0.55, width: 80, height: 150 },
-                    { x: canvas.width * 0.15, y: canvas.height * 0.4, width: 150, height: 80 },
-                    { x: canvas.width * 0.65, y: canvas.height * 0.4, width: 150, height: 80 }
-                ],
-                doors: [
-                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 4, label: "← Setor 4" },
-                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 6, label: "→ Setor 6" }
-                ],
-                items: [
-                    { x: canvas.width * 0.45, y: canvas.height * 0.35, type: "code", content: "Código: 6660", code: "6660" },
-                    { x: canvas.width * 0.5, y: canvas.height * 0.7, type: "battery", content: "Pilha encontrada! +50% de bateria" }
-                ],
-                chests: [
-                    { x: canvas.width * 0.5, y: canvas.height * 0.5, locked: true, code: "6660", content: "Artefato Misterioso encontrado!" }
-                ],
-                entitySpawn: true,
-                /* Munição no setor 5 */
-                ammo: { x: canvas.width * 0.75, y: canvas.height * 0.3 }
-            },
-            6: {
-                name: "Corredor Infinito",
-                description: "As estantes parecem se estender infinitamente.",
-                bgColor: "#1a1a0a",
-                wallColor: "#2a2a1a",
-                floorColor: "#1a1a0a",
-                walls: [],
-                // Reorganizando estantes para formar corredores longos
-                bookshelves: [
-                    // Corredores paralelos longos
-                    { x: canvas.width * 0.2, y: canvas.height * 0.1, width: 80, height: 250 },
-                    { x: canvas.width * 0.2, y: canvas.height * 0.5, width: 80, height: 250 },
-                    
-                    { x: canvas.width * 0.4, y: canvas.height * 0.15, width: 80, height: 200 },
-                    { x: canvas.width * 0.4, y: canvas.height * 0.55, width: 80, height: 200 },
-                    
-                    { x: canvas.width * 0.6, y: canvas.height * 0.2, width: 80, height: 180 },
-                    { x: canvas.width * 0.6, y: canvas.height * 0.6, width: 80, height: 180 },
-                    
-                    { x: canvas.width * 0.8, y: canvas.height * 0.15, width: 80, height: 200 },
-                    { x: canvas.width * 0.8, y: canvas.height * 0.55, width: 80, height: 200 }
-                ],
-                doors: [
-                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 5, label: "← Setor 5" },
-                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 7, label: "→ Setor 7" }
-                ],
-                items: [
-                    { x: canvas.width * 0.3, y: canvas.height * 0.4, type: "note", content: "Nota: 'Você não deveria estar aqui. CORRA!'" },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.6, type: "battery", content: "Pilha encontrada! +50% de bateria" }
-                ],
-                chests: [],
-                entitySpawn: true,
-                /* Munição no setor 6 */
-                ammo: { x: canvas.width * 0.5, y: canvas.height * 0.25 }
-            },
-            7: {
-                name: "Biblioteca Amaldiçoada",
-                description: "Os livros parecem sussurrar seu nome...",
-                bgColor: "#0a1a1a",
-                wallColor: "#1a2a2a",
-                floorColor: "#0a1a1a",
-                walls: [],
-                // Reorganizando estantes para formar corredores em zigue-zague
-                bookshelves: [
-                    // Padrão zigue-zague
-                    { x: canvas.width * 0.15, y: canvas.height * 0.15, width: 120, height: 80 },
-                    { x: canvas.width * 0.35, y: canvas.height * 0.3, width: 120, height: 80 },
-                    { x: canvas.width * 0.55, y: canvas.height * 0.45, width: 120, height: 80 },
-                    { x: canvas.width * 0.75, y: canvas.height * 0.6, width: 120, height: 80 },
-                    
-                    { x: canvas.width * 0.25, y: canvas.height * 0.6, width: 80, height: 120 },
-                    { x: canvas.width * 0.45, y: canvas.height * 0.15, width: 80, height: 120 },
-                    { x: canvas.width * 0.65, y: canvas.height * 0.7, width: 80, height: 120 }
-                ],
-                doors: [
-                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 6, label: "← Setor 6" },
-                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: true, leadsTo: 8, label: "→ Saída (Trancado)" }
-                ],
-                items: [
-                    { x: canvas.width * 0.4, y: canvas.height * 0.5, type: "code", content: "Código Final: 0000", code: "0000" },
-                    { x: canvas.width * 0.6, y: canvas.height * 0.35, type: "battery", content: "Pilha encontrada! +50% de bateria" }
-                ],
-                chests: [
-                    { x: canvas.width * 0.5, y: canvas.height * 0.7, locked: true, code: "0000", content: "Chave da Saída encontrada!" }
-                ],
-                entitySpawn: true,
-                /* Munição no setor 7 */
-                ammo: { x: canvas.width * 0.3, y: canvas.height * 0.7 }
-            },
-            8: {
-                name: "Saída",
-                description: "A porta de saída está à frente. Você conseguiu!",
-                bgColor: "#1a1a1a",
-                wallColor: "#2a2a2a",
-                floorColor: "#1a1a1a",
-                walls: [],
-                // Reorganizando estantes para formar corredor final
-                bookshelves: [
-                    // Corredor final simples
-                    { x: canvas.width * 0.2, y: canvas.height * 0.2, width: 80, height: 200 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.2, width: 80, height: 200 },
-                    { x: canvas.width * 0.2, y: canvas.height * 0.6, width: 80, height: 150 },
-                    { x: canvas.width * 0.7, y: canvas.height * 0.6, width: 80, height: 150 }
-                ],
-                doors: [
-                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 7, label: "← Setor 7" },
-                    { x: canvas.width / 2, y: canvas.height * 0.1, width: 80, height: 40, locked: false, leadsTo: "exit", label: "SAÍDA" }
-                ],
-                items: [
-                    { x: canvas.width * 0.5, y: canvas.height * 0.5, type: "note", content: "Você escapou da livraria amaldiçoada!" }
-                ],
-                chests: [],
-                entitySpawn: false,
-                /* Munição no setor 8 */
-                ammo: { x: canvas.width * 0.5, y: canvas.height * 0.7 }
+        function checkWallCollision(x, y) {
+            const level = levels[game.currentLevel];
+            if (!level.walls) return false;
+            
+            for (let wall of level.walls) {
+                if (x > wall.x - 20 && x < wall.x + wall.width + 20 &&
+                    y > wall.y - 20 && y < wall.y + wall.height + 20) {
+                    return true;
+                }
             }
-        };
+            return false;
+        }
 
-        // ==================== FUNÇÕES DE UI ====================
-        function showMessage(text, duration = 3000) {
-            const messageEl = document.getElementById('message');
-            messageEl.textContent = text;
-            messageEl.style.display = 'block';
-            setTimeout(() => {
-                messageEl.style.display = 'none';
-            }, duration);
+        function drawBullet(bullet) {
+            ctx.fillStyle = '#ffff00';
+            ctx.fillRect(bullet.x - bullet.size / 2, bullet.y - bullet.size / 2, bullet.size, bullet.size);
+        }
+
+        function showMessage(text) {
+            const messageBox = document.getElementById('message-box');
+            messageBox.textContent = text;
+            messageBox.style.display = 'block';
+            setTimeout(() => messageBox.style.display = 'none', 3000);
         }
 
         function updateHUD() {
@@ -1215,14 +1018,34 @@
             document.getElementById('houses-explored').textContent = game.housesExplored.size;
             document.getElementById('codes-collected').textContent = game.codesCollected.length;
             document.getElementById('chests-opened').textContent = game.chestsOpened;
+            
+            let inventoryText = 'Inventário: ';
+            if (game.hasGun) {
+                inventoryText += `Arma (${game.ammo} munição) `;
+            }
+            if (game.hasDetector) {
+                inventoryText += 'Detector ';
+            }
+            if (game.inventory.length > 0) {
+                inventoryText += `Itens (${game.inventory.length}) `;
+            }
+            document.getElementById('inventory-content').textContent = inventoryText || 'Vazio';
         }
 
-        function updateInventory() {
-            const inventoryEl = document.getElementById('inventory-items');
-            if (game.inventory.length === 0) {
-                inventoryEl.innerHTML = '<li>Vazio</li>';
-            } else {
-                inventoryEl.innerHTML = game.inventory.map(item => `<li>${item}</li>`).join('');
+        // Atualizando overlay da lanterna na função render
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function updateFlashlightPosition() {
+            const overlay = document.getElementById('flashlight-overlay');
+            if (game.flashlightOn && game.currentLevel >= 3) {
+                overlay.style.setProperty('--flashlight-x', mouseX + 'px');
+                overlay.style.setProperty('--flashlight-y', mouseY + 'px');
             }
         }
 
@@ -1234,7 +1057,7 @@
                 overlay.style.display = 'block';
                 battery.style.display = 'block';
             } else if (game.flashlightOn && game.currentLevel >= 3 && game.flashlightBattery > 0) {
-                overlay.style.display = 'none';
+                overlay.style.display = 'block';
                 battery.style.display = 'block';
             } else {
                 overlay.style.display = 'none';
@@ -1244,359 +1067,133 @@
 
         function updateFlashlightBattery() {
             if (game.flashlightOn && game.currentLevel >= 3) {
-                game.flashlightBattery -= 0.1; // Consumo lento da bateria
+                game.flashlightBattery -= 0.1;
                 if (game.flashlightBattery <= 0) {
                     game.flashlightOn = false;
                     game.flashlightBattery = 0;
                     updateFlashlight();
-                    showMessage("A bateria da lanterna acabou!");
+                    showMessage(getTranslation('flashlight-empty'));
                 }
                 document.getElementById('battery-level').textContent = Math.floor(game.flashlightBattery);
             }
         }
 
-        // ==================== FUNÇÕES DO JOGO ====================
-        function startGame() {
-            document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('game-canvas').style.display = 'block';
-            game.state = 'playing';
-            game.currentLevel = 1;
-            game.housesExplored = new Set([1]);
-            game.codesCollected = [];
-            game.chestsOpened = 0;
-            game.inventory = [];
-            game.flashlightOn = false;
-            game.flashlightBattery = 100;
-            game.secretDoorsUnlocked = [];
-            game.deathLocation = null;
-            game.currentStamina = 100;
-            game.isRunning = false;
-            game.hasGun = false;
-            game.ammo = 0;
-            game.bullets = [];
-            game.hasDetector = false;
-            game.detectorCooldown = 0;
-            player.x = 100;
-            player.y = 100;
-            entity.active = false;
-            updateHUD();
-            updateInventory();
-            updateFlashlight();
-            showMessage("Explore a livraria e procure pistas...");
-            gameLoop();
-        }
-
-        function gameOver() {
-            game.state = 'gameover';
-            
-            // Salvar localização da morte e itens (exceto códigos)
-            const droppedItems = game.inventory.filter(item => !item.startsWith('Código:') && !item.startsWith('Pistola') && !item.startsWith('Lanterna'));
-            
-            if (droppedItems.length > 0) {
-                game.deathLocation = {
-                    x: player.x,
-                    y: player.y,
-                    level: game.currentLevel,
-                    items: [...droppedItems]
-                };
-                
-                // Remover itens dropados do inventário (manter códigos, pistola e lanterna)
-                game.inventory = game.inventory.filter(item => 
-                    item.startsWith('Código:') || 
-                    item.startsWith('Pistola') || 
-                    item.startsWith('Lanterna') || 
-                    item.startsWith('Chave:') || 
-                    item.startsWith('Chave Final') ||
-                    item.startsWith('Detector de Fantasmas')
-                );
-                updateInventory();
-            }
-            
-            document.getElementById('game-over-screen').style.display = 'flex';
-        }
-
-        function victory() {
-            game.state = 'victory';
-            document.getElementById('victory-screen').style.display = 'flex';
-        }
-
         function checkInteraction() {
             const level = levels[game.currentLevel];
+            const dist = 50;
             
-            if (game.currentLevel === 1 && level.detector && !game.hasDetector) {
-                const dist = Math.hypot(player.x - level.detector.x, player.y - level.detector.y);
-                if (dist < 40) {
-                    game.hasDetector = true;
-                    game.inventory.push("Detector de Fantasmas");
-                    showMessage("Detector de Fantasmas encontrado! Pressione E para usar.");
-                    updateInventory();
-                    delete level.detector;
+            // Verificar se está perto de uma porta
+            for (let door of level.doors) {
+                if (Math.hypot(player.x - door.x, player.y - door.y) < dist) {
+                    if (!game.spawnedPasswords[game.currentLevel]) {
+                        showMessage("Nenhuma senha encontrada! Procure no chão.");
+                        return;
+                    }
+                    
+                    game.currentPassword = game.spawnedPasswords[game.currentLevel];
+                    document.getElementById('password-screen').style.display = 'flex';
+                    document.getElementById('password-input').value = '';
+                    document.getElementById('password-error').textContent = '';
+                    document.getElementById('password-input').focus();
                     return;
                 }
             }
             
-            if (game.hasDetector && game.detectorCooldown === 0) {
-                // Verificar se está perto de uma porta
-                let nearDoor = false;
-                let nextLevel = null;
-                
-                level.doors.forEach(door => {
-                    const dist = Math.hypot(player.x - door.x, player.y - door.y);
-                    if (dist < 100 && !door.locked) {
-                        nearDoor = true;
-                        nextLevel = door.leadsTo;
+            // Verificar coleta de itens
+            for (let item of level.items) {
+                if (Math.hypot(player.x - item.x, player.y - item.y) < 30) {
+                    if (item.type === 'note') {
+                        showMessage(item.content);
+                    } else if (item.type === 'battery') {
+                        game.flashlightBattery = Math.min(100, game.flashlightBattery + 50);
+                        showMessage(item.content);
+                        level.items.splice(level.items.indexOf(item), 1);
+                    } else if (item.type === 'flashlight') {
+                        game.currentLevel >= 3 && (game.currentLevel = game.currentLevel);
+                        showMessage(getTranslation('flashlight-hint'));
+                        level.items.splice(level.items.indexOf(item), 1);
+                    } else if (item.type === 'code') {
+                        game.codesCollected.push(item.code);
+                        showMessage(item.content);
+                        level.items.splice(level.items.indexOf(item), 1);
+                    } else if (item.type === 'password') {
+                        game.spawnedPasswords[game.currentLevel] = item.code;
+                        showMessage(`Senha encontrada: ${item.code}`);
+                        level.items.splice(level.items.indexOf(item), 1);
                     }
-                });
-                
-                if (nearDoor && nextLevel && nextLevel !== "exit") {
-                    const hasGhost = levels[nextLevel].entitySpawn === true;
-                    showGhostAlert(hasGhost);
-                    game.detectorCooldown = 180; // 3 segundos de cooldown (60 fps)
-                    showMessage("Detector usado! Aguarde 3 segundos para usar novamente.");
+                    updateHUD();
                     return;
                 }
-            }
-            
-            if (game.deathLocation && 
-                game.deathLocation.level === game.currentLevel) {
-                const dist = Math.hypot(player.x - game.deathLocation.x, player.y - game.deathLocation.y);
-                if (dist < 40) {
-                    // Recuperar todos os itens
-                    game.inventory.push(...game.deathLocation.items);
-                    showMessage(`Você recuperou seus itens! (${game.deathLocation.items.length} itens)`);
-                    game.deathLocation = null;
-                    updateInventory();
-                    return;
-                }
-            }
-            
-            // Verificar portas normais
-            level.doors.forEach(door => {
-                const dist = Math.hypot(player.x - door.x, player.y - door.y);
-                if (dist < 60) {
-                    if (door.locked) {
-                        if (door.requiredCode && game.codesCollected.includes(door.requiredCode)) {
-                            showMessage(`Porta destrancada com código ${door.requiredCode}!`);
-                            door.locked = false;
-                        } else if (door.requiredCodes && game.codesCollected.length >= door.requiredCodes) {
-                            if (door.leadsTo === "exit") {
-                                victory();
-                                return;
-                            }
-                        } else {
-                            showMessage("Porta trancada! Você precisa encontrar o código.");
-                        }
-                    } else {
-                        if (door.leadsTo === "exit") {
-                            victory();
-                        } else {
-                            changeLevel(door.leadsTo);
-                        }
-                    }
-                }
-            });
-            
-            // Verificar portas secretas
-            if (level.secretDoors) {
-                level.secretDoors.forEach(door => {
-                    const dist = Math.hypot(player.x - door.x, player.y - door.y);
-                    if (dist < 60) {
-                        if (door.locked && game.secretDoorsUnlocked.includes(door.unlockedBy)) {
-                            showMessage("Porta secreta destrancada!");
-                            door.locked = false;
-                        }
-                        
-                        if (!door.locked) {
-                            if (door.leadsTo === "exit") {
-                                victory();
-                            } else {
-                                changeLevel(door.leadsTo);
-                            }
-                        } else {
-                            showMessage("Uma porta secreta... mas está trancada!");
-                        }
-                    }
-                });
             }
             
             // Verificar baús
-            if (level.chests) {
-                level.chests.forEach((chest, index) => {
-                    const dist = Math.hypot(player.x - chest.x, player.y - chest.y);
-                    if (dist < 40 && !chest.opened) {
-                        // Verificar se o baú está trancado e se o jogador tem a chave
-                        if (chest.locked) {
-                            const keyNeeded = chest.code; // O 'code' aqui representa a chave necessária
-                            if (game.inventory.some(item => item.includes(keyNeeded) || item === "Chave Final")) {
-                                showMessage(`Baú destrancado com a chave!`);
-                                chest.locked = false; // Destrancar o baú
-                            } else {
-                                showMessage(`Baú trancado. Você precisa de uma chave.`);
-                                return; // Não abrir o baú se estiver trancado
-                            }
-                        }
-                        
-                        chest.opened = true;
-                        game.chestsOpened++;
-                        
-                        if (chest.content.startsWith('Código:') || chest.content.startsWith('Código Final:')) {
-                            const code = chest.content.includes('Final') ? chest.content.replace('Código Final: ', '') : chest.content.replace('Código: ', '');
-                            game.codesCollected.push(code);
-                            game.inventory.push(`Código: ${code}`);
-                            showMessage(`Baú aberto! Código encontrado: ${code}`);
-                        } else if (chest.content.startsWith('secret_door_')) {
-                            game.secretDoorsUnlocked.push(chest.content);
-                            game.inventory.push(`Chave: ${chest.content}`);
-                            showMessage("Baú aberto! Você encontrou uma chave para uma porta secreta!");
-                        } else if (chest.content === 'Artefato Misterioso encontrado!') {
-                            game.inventory.push("Artefato Misterioso");
+            for (let chest of level.chests) {
+                if (Math.hypot(player.x - chest.x, player.y - chest.y) < 30) {
+                    if (chest.locked && chest.code) {
+                        const correctCode = game.codesCollected.includes(chest.code);
+                        if (correctCode) {
+                            chest.locked = false;
+                            game.chestsOpened++;
+                            game.inventory.push(chest.content);
                             showMessage(chest.content);
-                        } else if (chest.content === "Chave encontrada!") {
-                            game.inventory.push("Chave do Setor 5");
-                            showMessage(chest.content);
-                        } else if (chest.content === "Chave da Saída encontrada!") {
-                            game.inventory.push("Chave Final");
-                            showMessage(chest.content);
-                        }
-                        
-                        updateInventory();
-                        updateHUD();
-                    }
-                });
-            }
-            
-            // Verificar itens
-            level.items.forEach((item, index) => {
-                const dist = Math.hypot(player.x - item.x, player.y - item.y);
-                if (dist < 40) {
-                    if (item.type === "code") {
-                        if (!game.codesCollected.includes(item.code)) {
-                            game.codesCollected.push(item.code);
-                            game.inventory.push(`Código: ${item.code}`);
-                            showMessage(item.content);
-                            updateInventory();
                             updateHUD();
-                            level.items.splice(index, 1);
+                        } else {
+                            showMessage("Este baú está trancado. Procure uma chave.");
                         }
-                    } else if (item.type === "flashlight") {
-                        if (!game.inventory.includes("Lanterna")) {
-                            game.inventory.push("Lanterna");
-                            showMessage(item.content);
-                            updateInventory();
-                            level.items.splice(index, 1);
-                        }
-                    } else if (item.type === "battery") {
-                        game.flashlightBattery = Math.min(100, game.flashlightBattery + 50);
-                        showMessage(item.content);
-                        updateHUD();
-                        level.items.splice(index, 1);
-                    } else if (item.type === "gun") {
-                        if (!game.hasGun) {
-                            game.hasGun = true;
-                            game.ammo += 10; // Pistola vem com 10 balas
-                            game.inventory.push("Pistola");
-                            showMessage("Pistola encontrada! Clique para atirar nos fantasmas. +10 balas");
-                            updateInventory();
-                            updateHUD();
-                            level.items.splice(index, 1);
-                        }
-                    } else if (item.type === "ammo") {
-                        game.ammo += 15;
-                        showMessage("Munição encontrada! +15 balas");
-                        updateHUD();
-                        level.items.splice(index, 1);
-                    } else if (item.type === "note") {
-                        showMessage(item.content, 5000);
                     }
-                }
-            });
-            
-            // Verificar arma no nível 3
-            if (game.currentLevel === 3 && level.gun) {
-                const dist = Math.hypot(player.x - level.gun.x, player.y - level.gun.y);
-                if (dist < 40) {
-                    if (!game.hasGun) {
-                        game.hasGun = true;
-                        game.ammo += 10; // Pistola vem com 10 balas
-                        game.inventory.push("Pistola");
-                        showMessage("Pistola encontrada! Clique para atirar nos fantasmas. +10 balas");
-                        updateInventory();
-                        updateHUD();
-                        delete level.gun; // Remover a arma do nível após coletar
-                    }
+                    return;
                 }
             }
             
-            // Verificar munição nos níveis 4, 5, 6, 7, 8
-            if (level.ammo) {
-                const dist = Math.hypot(player.x - level.ammo.x, player.y - level.ammo.y);
-                if (dist < 40) {
-                    game.ammo += 15;
-                    showMessage("Munição encontrada! +15 balas");
+            // Verificar gun
+            if (level.gun) {
+                if (Math.hypot(player.x - level.gun.x, player.y - level.gun.y) < 30) {
+                    game.hasGun = true;
+                    game.ammo = 30;
+                    showMessage(getTranslation('gun-label'));
+                    level.gun = null;
                     updateHUD();
-                    delete level.ammo; // Remover a munição do nível
+                    return;
                 }
             }
         }
 
-        function changeLevel(newLevel) {
-            game.currentLevel = newLevel;
-            game.housesExplored.add(newLevel);
+        function findPathToPlayer(entityX, entityY, level) {
+            const dx = player.x - entityX;
+            const dy = player.y - entityY;
+            const dist = Math.hypot(dx, dy);
             
-            const spawnPositions = {
-                1: { x: 100, y: 100 },
-                2: { x: 100, y: canvas.height / 2 },
-                3: { x: 100, y: 100 },
-                4: { x: canvas.width / 2, y: canvas.height - 100 },
-                5: { x: 100, y: canvas.height / 2 },
-                6: { x: 100, y: canvas.height / 2 },
-                7: { x: 100, y: canvas.height / 2 },
-                8: { x: canvas.width / 2, y: canvas.height - 100 }
-            };
+            if (dist === 0) return { x: 0, y: 0 };
             
-            player.x = spawnPositions[newLevel].x;
-            player.y = spawnPositions[newLevel].y;
+            let moveX = (dx / dist);
+            let moveY = (dy / dist);
             
-            if (levels[newLevel].entitySpawn && !entity.active) {
-                entity.active = true;
-                entity.x = Math.random() * canvas.width;
-                entity.y = Math.random() * canvas.height;
+            // Verificar se pode se mover diretamente
+            const testX = entityX + moveX * entity.speed;
+            const testY = entityY + moveY * entity.speed;
+            
+            if (!checkBookshelfCollision(testX, testY) && !checkWallCollision(testX, testY)) {
+                return { x: moveX, y: moveY };
             }
             
-            updateHUD();
-            updateFlashlight();
-            showMessage(`Você entrou em: ${levels[newLevel].name}`);
-        }
-
-        // ==================== MOVIMENTO E FÍSICA ====================
-        function checkWallCollision(newX, newY) {
-            const level = levels[game.currentLevel];
-            if (!level.walls) return false;
+            // Se há obstáculo, tentar contorná-lo
+            const alternatives = [
+                { x: moveX, y: 0 },
+                { x: 0, y: moveY },
+                { x: moveX * 0.707, y: moveY * 0.707 },
+                { x: -moveY, y: moveX },
+                { x: moveY, y: -moveX }
+            ];
             
-            for (let wall of level.walls) {
-                if (newX + player.size > wall.x &&
-                    newX - player.size < wall.x + wall.width &&
-                    newY + player.size > wall.y &&
-                    newY - player.size < wall.y + wall.height) {
-                    return true;
+            for (let alt of alternatives) {
+                const altX = entityX + alt.x * entity.speed;
+                const altY = entityY + alt.y * entity.speed;
+                if (!checkBookshelfCollision(altX, altY) && !checkWallCollision(altX, altY)) {
+                    return alt;
                 }
             }
-            return false;
-        }
-
-        function checkBookshelfCollision(newX, newY) {
-            const level = levels[game.currentLevel];
-            if (!level.bookshelves) return false;
             
-            for (let shelf of level.bookshelves) {
-                if (newX + player.size > shelf.x &&
-                    newX - player.size < shelf.x + shelf.width &&
-                    newY + player.size > shelf.y &&
-                    newY - player.size < shelf.y + shelf.height) {
-                    return true;
-                }
-            }
-            return false;
+            return { x: 0, y: 0 };
         }
 
         function updatePlayer() {
@@ -1631,10 +1228,9 @@
             if (keys['shift'] && (dx !== 0 || dy !== 0) && game.currentStamina > 0) {
                 currentSpeed = player.runSpeed;
                 game.isRunning = true;
-                game.currentStamina -= 0.5; // Consome estamina ao correr
+                game.currentStamina -= 0.5;
                 if (game.currentStamina < 0) game.currentStamina = 0;
             } else if (!game.isRunning && game.currentStamina < game.maxStamina) {
-                // Regenera estamina quando não está correndo
                 game.currentStamina += game.staminaRegenRate;
                 if (game.currentStamina > game.maxStamina) game.currentStamina = game.maxStamina;
             }
@@ -1663,13 +1259,11 @@
                 bullet.x += bullet.vx;
                 bullet.y += bullet.vy;
                 
-                // Remover bala se sair da tela
                 if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
                     game.bullets.splice(i, 1);
                     continue;
                 }
                 
-                // Verificar colisão com paredes
                 let hitWall = false;
                 if (level.walls) {
                     for (let wall of level.walls) {
@@ -1681,7 +1275,6 @@
                     }
                 }
                 
-                // Verificar colisão com estantes
                 if (!hitWall && level.bookshelves) {
                     for (let shelf of level.bookshelves) {
                         if (bullet.x > shelf.x && bullet.x < shelf.x + shelf.width &&
@@ -1697,46 +1290,49 @@
                     continue;
                 }
                 
-                // Verificar colisão com entidade
-                if (entity.active) {
-                    const dist = Math.hypot(bullet.x - entity.x, bullet.y - entity.y);
-                    if (dist < entity.size) {
-                        // Acertou o fantasma! Reposicionar longe
-                        entity.x = Math.random() * canvas.width;
-                        entity.y = Math.random() * canvas.height;
-                        
-                        // Garantir que não spawne perto do jogador
-                        while (Math.hypot(player.x - entity.x, player.y - entity.y) < 300) {
-                            entity.x = Math.random() * canvas.width;
-                            entity.y = Math.random() * canvas.height;
+                for (let j = entities.length - 1; j >= 0; j--) {
+                    const ent = entities[j];
+                    if (ent.active) {
+                        const dist = Math.hypot(bullet.x - ent.x, bullet.y - ent.y);
+                        if (dist < ent.size) {
+                            ent.x = Math.random() * canvas.width;
+                            ent.y = Math.random() * canvas.height;
+                            
+                            while (Math.hypot(player.x - ent.x, player.y - ent.y) < 300) {
+                                ent.x = Math.random() * canvas.width;
+                                ent.y = Math.random() * canvas.height;
+                            }
+                            
+                            game.bullets.splice(i, 1);
+                            showMessage(getTranslation('gun-hit'));
+                            break;
                         }
-                        
-                        game.bullets.splice(i, 1);
-                        showMessage("Você acertou o fantasma! Ele foi repelido.");
                     }
                 }
             }
         }
 
-        function updateEntity() {
-            if (!entity.active) return;
-            
-            const dx = player.x - entity.x;
-            const dy = player.y - entity.y;
-            const dist = Math.hypot(dx, dy);
-            
-            if (dist > 5) {
-                const newX = entity.x + (dx / dist) * entity.speed;
-                const newY = entity.y + (dy / dist) * entity.speed;
+        function updateEntities() {
+            for (let ent of entities) {
+                if (!ent.active) continue;
+                
+                const dx = player.x - ent.x;
+                const dy = player.y - ent.y;
+                const dist = Math.hypot(dx, dy);
+                
+                const path = findPathToPlayer(ent.x, ent.y, levels[game.currentLevel]);
+                const newX = ent.x + path.x * ent.speed;
+                const newY = ent.y + path.y * ent.speed;
                 
                 if (!checkBookshelfCollision(newX, newY) && !checkWallCollision(newX, newY)) {
-                    entity.x = newX;
-                    entity.y = newY;
+                    ent.x = newX;
+                    ent.y = newY;
                 }
-            }
-            
-            if (dist < player.size + entity.size) {
-                gameOver();
+                
+                if (dist < player.size + ent.size) {
+                    gameOver();
+                    return;
+                }
             }
         }
 
@@ -1749,98 +1345,433 @@
                 x = Math.random() * (canvas.width - 100) + 50;
                 y = Math.random() * (canvas.height - 100) + 50;
                 attempts++;
-                
-                // Verificar se não colide com paredes
-                let valid = true;
-                if (level.walls) {
-                    for (let wall of level.walls) {
-                        if (x > wall.x - 30 && x < wall.x + wall.width + 30 &&
-                            y > wall.y - 30 && y < wall.y + wall.height + 30) {
-                            valid = false;
-                            break;
-                        }
-                    }
-                }
-                
-                // Verificar se não colide com estantes
-                if (valid && level.bookshelves) {
-                    for (let shelf of level.bookshelves) {
-                        if (x > shelf.x - 30 && x < shelf.x + shelf.width + 30 &&
-                            y > shelf.y - 30 && y < shelf.y + shelf.height + 30) {
-                            valid = false;
-                            break;
-                        }
-                    }
-                }
-                
-                if (valid) return { x, y };
-                
-            } while (attempts < maxAttempts);
+            } while ((checkBookshelfCollision(x, y) || checkWallCollision(x, y)) && attempts < maxAttempts);
             
-            // Se não encontrar posição válida, retornar posição padrão
-            return { x: canvas.width * 0.5, y: canvas.height * 0.5 };
+            return { x, y };
         }
 
-        // ==================== RENDERIZAÇÃO ====================
+        // CHAMADA REMOVIDA spawnEntityPeriodically()
+        // DIMINUÍDA VELOCIDADE DAS ENTIDADES AGORA EM updateEntities() COM PATH FINDING MELHORADO
+
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            game.state = 'playing';
+            game.levelStartTime = Date.now();
+            
+            const spawnPositions = {
+                1: { x: 100, y: 100 },
+                2: { x: 100, y: canvas.height / 2 },
+                3: { x: 100, y: 100 },
+                4: { x: canvas.width / 2, y: canvas.height - 100 },
+                5: { x: 100, y: canvas.height / 2 },
+                6: { x: 100, y: canvas.height / 2 },
+                7: { x: 100, y: canvas.height / 2 },
+                8: { x: canvas.width / 2, y: canvas.height - 100 }
+            };
+            
+            player.x = spawnPositions[game.currentLevel].x;
+            player.y = spawnPositions[game.currentLevel].y;
+            
+            game.currentStamina = game.maxStamina;
+            
+            entities = [];
+            const level = levels[game.currentLevel];
+            if (level.entitySpawn) {
+                const pos = getRandomValidPosition(level);
+                entities.push({
+                    x: pos.x,
+                    y: pos.y,
+                    size: 20,
+                    speed: 1.8, // Velocidade base reduzida
+                    active: true
+                });
+            }
+            
+            updateHUD();
+            gameLoop();
+        }
+
+        function gameOver() {
+            game.state = 'gameOver';
+            game.deathLocation = { x: player.x, y: player.y, level: game.currentLevel };
+            document.getElementById('game-over-screen').style.display = 'flex';
+        }
+
+        function nextLevel() {
+            game.currentLevel++;
+            game.housesExplored.add(game.currentLevel);
+            
+            if (game.currentLevel > 8) {
+                document.getElementById('victory-screen').style.display = 'flex';
+                game.state = 'victory';
+                return;
+            }
+            
+            game.levelStartTime = Date.now();
+            startGame();
+        }
+
+        const levels = {
+            1: {
+                name: "Entrada da Livraria",
+                bgColor: "#2a1a1a",
+                wallColor: "#4a2a1a",
+                floorColor: "#3a2a1a",
+                walls: [],
+                bookshelves: [
+                    { x: canvas.width * 0.15, y: canvas.height * 0.08, width: 150, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.08, width: 120, height: 80 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.08, width: 150, height: 80 },
+                    { x: canvas.width * 0.75, y: canvas.height * 0.08, width: 120, height: 80 },
+                    
+                    { x: canvas.width * 0.12, y: canvas.height * 0.22, width: 80, height: 150 },
+                    { x: canvas.width * 0.12, y: canvas.height * 0.5, width: 80, height: 180 },
+                    
+                    { x: canvas.width * 0.25, y: canvas.height * 0.25, width: 120, height: 80 },
+                    { x: canvas.width * 0.25, y: canvas.height * 0.45, width: 80, height: 120 },
+                    { x: canvas.width * 0.25, y: canvas.height * 0.7, width: 120, height: 80 },
+                    
+                    { x: canvas.width * 0.42, y: canvas.height * 0.2, width: 80, height: 180 },
+                    { x: canvas.width * 0.42, y: canvas.height * 0.55, width: 80, height: 200 },
+                    
+                    { x: canvas.width * 0.55, y: canvas.height * 0.3, width: 150, height: 80 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.5, width: 120, height: 80 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.7, width: 150, height: 80 },
+                    
+                    { x: canvas.width * 0.72, y: canvas.height * 0.18, width: 80, height: 150 },
+                    { x: canvas.width * 0.72, y: canvas.height * 0.45, width: 80, height: 120 },
+                    { x: canvas.width * 0.72, y: canvas.height * 0.72, width: 80, height: 150 }
+                ],
+                doors: [
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 2, label: "→ Setor 2" }
+                ],
+                items: [
+                    { x: canvas.width * 0.2, y: canvas.height * 0.35, type: "note", content: "Nota: 'Esta livraria guarda segredos sombrios. Procure pelos baús escondidos entre as estantes.'" },
+                    { x: canvas.width * 0.75, y: canvas.height * 0.55, type: "battery", content: "Pilha encontrada! +50% de bateria" },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.65, type: "password", code: "2001" }
+                ],
+                chests: [],
+                entitySpawn: false
+            },
+            2: {
+                name: "Corredor dos Livros Antigos",
+                bgColor: "#1a1a1a",
+                wallColor: "#2a2a2a",
+                floorColor: "#1a1a1a",
+                walls: [],
+                bookshelves: [
+                    { x: canvas.width * 0.2, y: canvas.height * 0.1, width: 100, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.1, width: 120, height: 80 },
+                    
+                    { x: canvas.width * 0.15, y: canvas.height * 0.25, width: 80, height: 150 },
+                    { x: canvas.width * 0.15, y: canvas.height * 0.55, width: 80, height: 180 },
+                    
+                    { x: canvas.width * 0.3, y: canvas.height * 0.3, width: 150, height: 80 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.5, width: 120, height: 80 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.7, width: 150, height: 80 },
+                    
+                    { x: canvas.width * 0.5, y: canvas.height * 0.15, width: 80, height: 180 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.45, width: 80, height: 150 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.7, width: 80, height: 120 },
+                    
+                    { x: canvas.width * 0.65, y: canvas.height * 0.2, width: 120, height: 80 },
+                    { x: canvas.width * 0.65, y: canvas.height * 0.4, width: 150, height: 80 },
+                    { x: canvas.width * 0.65, y: canvas.height * 0.6, width: 100, height: 80 },
+                    
+                    { x: canvas.width * 0.78, y: canvas.height * 0.25, width: 80, height: 200 },
+                    { x: canvas.width * 0.78, y: canvas.height * 0.6, width: 80, height: 150 }
+                ],
+                doors: [
+                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 1, label: "← Setor 1" },
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 3, label: "→ Setor 3" }
+                ],
+                items: [
+                    { x: canvas.width / 2, y: canvas.height / 2, type: "code", content: "Código: 4721", code: "4721" },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.75, type: "battery", content: "Pilha encontrada! +50% de bateria" },
+                    { x: canvas.width * 0.4, y: canvas.height * 0.2, type: "password", code: "1928" }
+                ],
+                chests: [
+                    { x: canvas.width * 0.35, y: canvas.height * 0.55, locked: true, code: "4721", content: "Chave encontrada!" }
+                ],
+                entitySpawn: false
+            },
+            3: {
+                name: "Sala de Leitura Sombria",
+                bgColor: "#0a0a0a",
+                wallColor: "#1a1a1a",
+                floorColor: "#0a0a0a",
+                walls: [],
+                bookshelves: [
+                    { x: canvas.width * 0.25, y: canvas.height * 0.08, width: 150, height: 80 },
+                    { x: canvas.width * 0.5, y: canvas.height * 0.08, width: 120, height: 80 },
+                    
+                    { x: canvas.width * 0.15, y: canvas.height * 0.22, width: 80, height: 150 },
+                    { x: canvas.width * 0.15, y: canvas.height * 0.48, width: 80, height: 180 },
+                    { x: canvas.width * 0.15, y: canvas.height * 0.75, width: 80, height: 100 },
+                    
+                    { x: canvas.width * 0.32, y: canvas.height * 0.25, width: 120, height: 80 },
+                    { x: canvas.width * 0.32, y: canvas.height * 0.42, width: 150, height: 80 },
+                    { x: canvas.width * 0.32, y: canvas.height * 0.6, width: 120, height: 80 },
+                    { x: canvas.width * 0.32, y: canvas.height * 0.78, width: 150, height: 80 },
+                    
+                    { x: canvas.width * 0.55, y: canvas.height * 0.2, width: 80, height: 180 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.5, width: 80, height: 150 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.75, width: 80, height: 120 },
+                    
+                    { x: canvas.width * 0.7, y: canvas.height * 0.15, width: 120, height: 80 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.35, width: 100, height: 80 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.55, width: 120, height: 80 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.72, width: 100, height: 80 }
+                ],
+                doors: [
+                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 2, label: "← Setor 2" },
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 4, label: "→ Setor 4" }
+                ],
+                items: [
+                    { x: canvas.width * 0.3, y: canvas.height * 0.3, type: "flashlight", content: getTranslation('flashlight-hint') },
+                    { x: canvas.width * 0.6, y: canvas.height * 0.7, type: "battery", content: "Pilha encontrada! +50% de bateria" },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.4, type: "password", code: "5634" }
+                ],
+                chests: [],
+                entitySpawn: true,
+                gun: { x: canvas.width * 0.5, y: canvas.height * 0.5 }
+            },
+            4: {
+                name: "Arquivo Proibido",
+                bgColor: "#1a0a0a",
+                wallColor: "#2a1a1a",
+                floorColor: "#1a0a0a",
+                walls: [],
+                bookshelves: [
+                    { x: canvas.width * 0.15, y: canvas.height * 0.2, width: 150, height: 80 },
+                    { x: canvas.width * 0.15, y: canvas.height * 0.4, width: 150, height: 80 },
+                    { x: canvas.width * 0.15, y: canvas.height * 0.6, width: 150, height: 80 },
+                    
+                    { x: canvas.width * 0.35, y: canvas.height * 0.1, width: 100, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.25, width: 120, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.42, width: 100, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.58, width: 120, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.75, width: 100, height: 80 },
+                    
+                    { x: canvas.width * 0.55, y: canvas.height * 0.2, width: 120, height: 80 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.4, width: 150, height: 80 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.6, width: 100, height: 80 },
+                    
+                    { x: canvas.width * 0.72, y: canvas.height * 0.15, width: 100, height: 80 },
+                    { x: canvas.width * 0.72, y: canvas.height * 0.32, width: 120, height: 80 },
+                    { x: canvas.width * 0.72, y: canvas.height * 0.5, width: 100, height: 80 },
+                    { x: canvas.width * 0.72, y: canvas.height * 0.68, width: 120, height: 80 }
+                ],
+                doors: [
+                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 3, label: "← Setor 3" },
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 5, label: "→ Setor 5" }
+                ],
+                items: [
+                    { x: canvas.width * 0.5, y: canvas.height * 0.5, type: "code", content: "Código: 1928", code: "1928" },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.7, type: "battery", content: "Pilha encontrada! +50% de bateria" },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.65, type: "password", code: "9876" }
+                ],
+                chests: [
+                    { x: canvas.width * 0.45, y: canvas.height * 0.35, locked: true, code: "1928", content: "Pergaminho antigo encontrado!" }
+                ],
+                entitySpawn: true
+            },
+            5: {
+                name: "Biblioteca Central",
+                bgColor: "#0a0a0a",
+                wallColor: "#1a1a1a",
+                floorColor: "#0a0a0a",
+                walls: [],
+                bookshelves: [
+                    { x: canvas.width * 0.1, y: canvas.height * 0.15, width: 120, height: 80 },
+                    { x: canvas.width * 0.1, y: canvas.height * 0.4, width: 120, height: 80 },
+                    { x: canvas.width * 0.1, y: canvas.height * 0.65, width: 120, height: 80 },
+                    
+                    { x: canvas.width * 0.3, y: canvas.height * 0.08, width: 100, height: 80 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.25, width: 150, height: 80 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.45, width: 100, height: 80 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.62, width: 150, height: 80 },
+                    
+                    { x: canvas.width * 0.52, y: canvas.height * 0.2, width: 120, height: 80 },
+                    { x: canvas.width * 0.52, y: canvas.height * 0.4, width: 100, height: 80 },
+                    { x: canvas.width * 0.52, y: canvas.height * 0.6, width: 120, height: 80 },
+                    
+                    { x: canvas.width * 0.7, y: canvas.height * 0.12, width: 100, height: 80 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.32, width: 120, height: 80 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.52, width: 100, height: 80 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.72, width: 120, height: 80 }
+                ],
+                doors: [
+                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 4, label: "← Setor 4" },
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 6, label: "→ Setor 6" }
+                ],
+                items: [
+                    { x: canvas.width * 0.55, y: canvas.height * 0.75, type: "code", content: "Código: 5634", code: "5634" },
+                    { x: canvas.width * 0.25, y: canvas.height * 0.5, type: "battery", content: "Pilha encontrada! +50% de bateria" },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.5, type: "password", code: "3141" }
+                ],
+                chests: [],
+                entitySpawn: true
+            },
+            6: {
+                name: "Câmara Secreta",
+                bgColor: "#1a0a0a",
+                wallColor: "#2a1a1a",
+                floorColor: "#1a0a0a",
+                walls: [],
+                bookshelves: [
+                    { x: canvas.width * 0.2, y: canvas.height * 0.15, width: 150, height: 80 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.35, width: 150, height: 80 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.55, width: 150, height: 80 },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.75, width: 150, height: 80 },
+                    
+                    { x: canvas.width * 0.45, y: canvas.height * 0.1, width: 120, height: 80 },
+                    { x: canvas.width * 0.45, y: canvas.height * 0.3, width: 100, height: 80 },
+                    { x: canvas.width * 0.45, y: canvas.height * 0.5, width: 120, height: 80 },
+                    { x: canvas.width * 0.45, y: canvas.height * 0.7, width: 100, height: 80 },
+                    
+                    { x: canvas.width * 0.65, y: canvas.height * 0.2, width: 100, height: 80 },
+                    { x: canvas.width * 0.65, y: canvas.height * 0.4, width: 150, height: 80 },
+                    { x: canvas.width * 0.65, y: canvas.height * 0.6, width: 100, height: 80 }
+                ],
+                doors: [
+                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 5, label: "← Setor 5" },
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 7, label: "→ Setor 7" }
+                ],
+                items: [
+                    { x: canvas.width * 0.5, y: canvas.height * 0.45, type: "code", content: "Código: 9876", code: "9876" },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.2, type: "battery", content: "Pilha encontrada! +50% de bateria" },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.3, type: "password", code: "4721" }
+                ],
+                chests: [
+                    { x: canvas.width * 0.5, y: canvas.height * 0.7, locked: true, code: "9876", content: "Mapa do tesouro encontrado!" }
+                ],
+                entitySpawn: true
+            },
+            7: {
+                name: "Zona Profunda",
+                bgColor: "#050505",
+                wallColor: "#151515",
+                floorColor: "#050505",
+                walls: [],
+                bookshelves: [
+                    { x: canvas.width * 0.15, y: canvas.height * 0.1, width: 100, height: 80 },
+                    { x: canvas.width * 0.15, y: canvas.height * 0.3, width: 120, height: 80 },
+                    { x: canvas.width * 0.15, y: canvas.height * 0.5, width: 100, height: 80 },
+                    { x: canvas.width * 0.15, y: canvas.height * 0.7, width: 120, height: 80 },
+                    
+                    { x: canvas.width * 0.35, y: canvas.height * 0.15, width: 150, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.4, width: 100, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.62, width: 150, height: 80 },
+                    
+                    { x: canvas.width * 0.55, y: canvas.height * 0.08, width: 120, height: 80 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.28, width: 100, height: 80 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.48, width: 120, height: 80 },
+                    { x: canvas.width * 0.55, y: canvas.height * 0.68, width: 100, height: 80 },
+                    
+                    { x: canvas.width * 0.72, y: canvas.height * 0.2, width: 100, height: 80 },
+                    { x: canvas.width * 0.72, y: canvas.height * 0.4, width: 120, height: 80 },
+                    { x: canvas.width * 0.72, y: canvas.height * 0.6, width: 100, height: 80 }
+                ],
+                doors: [
+                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 6, label: "← Setor 6" },
+                    { x: canvas.width - 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 8, label: "→ Setor 8" }
+                ],
+                items: [
+                    { x: canvas.width * 0.5, y: canvas.height * 0.35, type: "code", content: "Código: 3141", code: "3141" },
+                    { x: canvas.width * 0.25, y: canvas.height * 0.6, type: "battery", content: "Pilha encontrada! +50% de bateria" },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.75, type: "password", code: "5634" }
+                ],
+                chests: [],
+                entitySpawn: true
+            },
+            8: {
+                name: "Câmara Final",
+                bgColor: "#000000",
+                wallColor: "#0a0a0a",
+                floorColor: "#000000",
+                walls: [],
+                bookshelves: [
+                    { x: canvas.width * 0.1, y: canvas.height * 0.1, width: 150, height: 100 },
+                    { x: canvas.width * 0.1, y: canvas.height * 0.4, width: 150, height: 100 },
+                    { x: canvas.width * 0.1, y: canvas.height * 0.7, width: 150, height: 100 },
+                    
+                    { x: canvas.width * 0.35, y: canvas.height * 0.15, width: 120, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.35, width: 150, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.55, width: 120, height: 80 },
+                    { x: canvas.width * 0.35, y: canvas.height * 0.75, width: 150, height: 80 },
+                    
+                    { x: canvas.width * 0.6, y: canvas.height * 0.2, width: 100, height: 80 },
+                    { x: canvas.width * 0.6, y: canvas.height * 0.4, width: 120, height: 80 },
+                    { x: canvas.width * 0.6, y: canvas.height * 0.6, width: 100, height: 80 },
+                    
+                    { x: canvas.width * 0.8, y: canvas.height * 0.25, width: 120, height: 80 },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.5, width: 100, height: 80 },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.75, width: 120, height: 80 }
+                ],
+                doors: [
+                    { x: 50, y: canvas.height / 2, width: 40, height: 80, locked: false, leadsTo: 7, label: "← Setor 7" }
+                ],
+                items: [
+                    { x: canvas.width / 2, y: canvas.height / 2, type: "code", content: "Código: 2001", code: "2001" },
+                    { x: canvas.width * 0.2, y: canvas.height * 0.25, type: "battery", content: "Pilha encontrada! +50% de bateria" }
+                ],
+                chests: [
+                    { x: canvas.width * 0.5, y: canvas.height * 0.5, locked: true, code: "2001", content: "Você encontrou o segredo final! Escape!" }
+                ],
+                entitySpawn: true
+            }
+        };
+
         function render() {
             const level = levels[game.currentLevel];
             
-            // Background
             ctx.fillStyle = level.bgColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Tábuas de madeira horizontais
             ctx.fillStyle = '#4a3520';
             for (let y = 0; y < canvas.height; y += 40) {
                 ctx.fillRect(0, y, canvas.width, 35);
             }
             
-            // Textura de madeira (veios e variações) - FIXOS
             ctx.fillStyle = '#3a2510';
             for (let y = 0; y < canvas.height; y += 40) {
-                // Linhas entre tábuas
                 ctx.fillRect(0, y + 35, canvas.width, 5);
                 
-                // Veios da madeira - usando posição como seed para padrão fixo
                 for (let i = 0; i < 20; i++) {
-                    const x = (i * 137 + y * 13) % canvas.width; // padrão fixo baseado em posição
-                    const width = ((i * 17 + y * 7) % 20) + 10; // largura fixa baseada em posição
+                    const x = (i * 137 + y * 13) % canvas.width;
+                    const width = ((i * 17 + y * 7) % 20) + 10;
                     ctx.fillRect(x, y + ((i * 11) % 30), width, 2);
                 }
             }
             
-            // Variações de cor nas tábuas - FIXAS
             ctx.fillStyle = '#5a4530';
             for (let y = 0; y < canvas.height; y += 40) {
                 for (let i = 0; i < 10; i++) {
-                    const x = (i * 173 + y * 19) % canvas.width; // padrão fixo
-                    const width = ((i * 23 + y * 11) % 15) + 5; // largura fixa
-                    const height = ((i * 13 + y * 7) % 8) + 5; // altura fixa
+                    const x = (i * 173 + y * 19) % canvas.width;
+                    const width = ((i * 23 + y * 11) % 15) + 5;
+                    const height = ((i * 13 + y * 7) % 8) + 5;
                     ctx.fillRect(x, y + ((i * 17) % 30), width, height);
                 }
             }
             
-            // Teias nos cantos da tela
+            // Teias nos cantos
             drawSpiderweb(80, 80, 60);
             drawSpiderweb(canvas.width - 80, 80, 60);
             drawSpiderweb(80, canvas.height - 80, 60);
             drawSpiderweb(canvas.width - 80, canvas.height - 80, 60);
             
-            // Usar o número do nível como seed para gerar posições consistentes
             const skullCount = 6;
             for (let i = 0; i < skullCount; i++) {
-                // Gerar posição pseudo-aleatória baseada no nível e índice
                 const seedX = (game.currentLevel * 1000 + i * 137) % canvas.width;
                 const seedY = (game.currentLevel * 1500 + i * 173) % canvas.height;
                 
-                // Ajustar para evitar bordas
                 const skullX = Math.max(100, Math.min(canvas.width - 100, seedX));
                 const skullY = Math.max(100, Math.min(canvas.height - 100, seedY));
                 
                 drawSkull(skullX, skullY);
             }
             
-            // Abóboras em posições fixas
             const pumpkinPositions = [
                 { x: canvas.width * 0.2, y: canvas.height * 0.15 },
                 { x: canvas.width * 0.8, y: canvas.height * 0.25 },
@@ -1853,8 +1784,7 @@
                 drawPumpkin(pos.x, pos.y);
             });
             
-            // Paredes externas
-            ctx.fillStyle = level.wallColor;
+            ctx.fillStyle = '#5a3a1a';
             ctx.fillRect(0, 0, canvas.width, 20);
             ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
             ctx.fillRect(0, 0, 20, canvas.height);
@@ -1872,16 +1802,24 @@
                 });
             }
             
-            // Portas
             level.doors.forEach(door => {
-                ctx.fillStyle = door.locked ? '#8b0000' : '#2a4a2a';
+                // Cor das portas baseada no estado
+                const baseColor = door.locked ? '#8b0000' : '#2a4a2a';
+                ctx.fillStyle = baseColor;
                 ctx.fillRect(door.x - door.width / 2, door.y - door.height / 2, door.width, door.height);
                 
+                // Textura de porta
+                ctx.strokeStyle = '#1a1a1a';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(door.x - door.width / 2, door.y - door.height / 2, door.width, door.height);
+                
+                // Label da porta
                 ctx.fillStyle = '#fff';
                 ctx.font = '12px Courier New';
                 ctx.textAlign = 'center';
                 ctx.fillText(door.label, door.x, door.y - door.height / 2 - 10);
                 
+                // Indicador de proximidade
                 const dist = Math.hypot(player.x - door.x, player.y - door.y);
                 if (dist < 60) {
                     ctx.strokeStyle = '#ffff00';
@@ -1890,180 +1828,92 @@
                     
                     ctx.fillStyle = '#ffff00';
                     ctx.font = '14px Courier New';
-                    ctx.fillText('[E] Interagir', door.x, door.y + door.height / 2 + 25);
+                    ctx.fillText(getTranslation('interact-door'), door.x, door.y + door.height / 2 + 25);
                 }
             });
             
-            if (level.secretDoors) {
-                level.secretDoors.forEach(door => {
-                    ctx.fillStyle = door.locked ? '#4a0a4a' : '#2a4a4a';
-                    ctx.fillRect(door.x - door.width / 2, door.y - door.height / 2, door.width, door.height);
-                    
-                    ctx.fillStyle = '#ff00ff';
-                    ctx.font = '12px Courier New';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(door.label, door.x, door.y - door.height / 2 - 10);
-                    
-                    const dist = Math.hypot(player.x - door.x, player.y - door.y);
-                    if (dist < 60) {
-                        ctx.strokeStyle = '#ff00ff';
-                        ctx.lineWidth = 2;
-                        ctx.strokeRect(door.x - door.width / 2 - 5, door.y - door.height / 2 - 5, door.width + 10, door.height + 10);
-                        
-                        ctx.fillStyle = '#ff00ff';
-                        ctx.font = '14px Courier New';
-                        ctx.fillText('[E] Interagir', door.x, door.y + door.height / 2 + 25);
-                    }
-                });
+            if (level.gun) {
+                ctx.fillStyle = '#ffaa00';
+                ctx.fillRect(level.gun.x - 10, level.gun.y - 5, 20, 10);
+                ctx.fillStyle = '#ff8800';
+                ctx.fillRect(level.gun.x - 12, level.gun.y - 2, 6, 4);
             }
             
-            if (level.chests) {
-                level.chests.forEach(chest => {
-                    drawChest(chest.x, chest.y, chest.opened);
-                    
-                    const dist = Math.hypot(player.x - chest.x, player.y - chest.y);
-                    if (dist < 40 && !chest.opened) {
-                        ctx.fillStyle = '#ffff00';
-                        ctx.font = '14px Courier New';
-                        ctx.textAlign = 'center';
-                        ctx.fillText('[E] Abrir Baú', chest.x, chest.y - 30);
-                    }
-                });
-            }
-            
-            // Itens
-            level.items.forEach((item, index) => {
-                if (item.type === "code") {
-                    ctx.fillStyle = '#ffd700';
-                    ctx.beginPath();
-                    ctx.arc(item.x, item.y, 15, 0, Math.PI * 2);
-                    ctx.fill();
-                    
+            // Items
+            level.items.forEach(item => {
+                if (item.type === 'code') {
+                    ctx.fillStyle = '#ffff00';
+                    ctx.fillRect(item.x - 15, item.y - 15, 30, 30);
                     ctx.fillStyle = '#000';
-                    ctx.font = 'bold 12px Courier New';
+                    ctx.font = 'bold 10px Courier New';
                     ctx.textAlign = 'center';
                     ctx.fillText('C', item.x, item.y + 5);
-                } else if (item.type === "flashlight") {
-                    ctx.fillStyle = '#ffff00';
-                    ctx.fillRect(item.x - 10, item.y - 5, 20, 10);
-                } else if (item.type === "battery") {
-                    ctx.fillStyle = '#00ff00';
+                } else if (item.type === 'battery') {
+                    ctx.fillStyle = '#ff0000';
                     ctx.fillRect(item.x - 8, item.y - 12, 16, 24);
-                    ctx.fillStyle = '#008800';
-                    ctx.fillRect(item.x - 4, item.y - 14, 8, 4);
-                    
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 10px Courier New';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('+', item.x, item.y + 3);
-                } else if (item.type === "gun") {
-                    ctx.fillStyle = '#4a4a4a';
-                    ctx.fillRect(item.x - 12, item.y - 6, 24, 12);
-                    ctx.fillStyle = '#2a2a2a';
-                    ctx.fillRect(item.x + 8, item.y - 4, 8, 8);
-                    ctx.fillStyle = '#8b4513';
-                    ctx.fillRect(item.x - 8, item.y - 4, 8, 8);
-                } else if (item.type === "ammo") {
-                    ctx.fillStyle = '#ffa500';
+                    ctx.fillStyle = '#ffff00';
                     ctx.fillRect(item.x - 6, item.y - 10, 12, 20);
-                    ctx.fillStyle = '#ff8800';
-                    ctx.fillRect(item.x - 4, item.y - 12, 8, 4);
-                    
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 10px Courier New';
+                } else if (item.type === 'flashlight') {
+                    ctx.fillStyle = '#ffff99';
+                    ctx.beginPath();
+                    ctx.arc(item.x, item.y, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#ffcc00';
+                    ctx.beginPath();
+                    ctx.arc(item.x, item.y, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (item.type === 'password') {
+                    ctx.fillStyle = '#ff99ff';
+                    ctx.font = 'bold 12px Courier New';
                     ctx.textAlign = 'center';
-                    ctx.fillText('A', item.x, item.y + 3);
-                } else if (item.type === "note") {
+                    ctx.fillText('🔐', item.x, item.y);
+                    ctx.fillStyle = '#ffccff';
+                    ctx.font = '10px Courier New';
+                    ctx.fillText('SENHA', item.x, item.y + 12);
+                } else if (item.type === 'note') {
+                    ctx.fillStyle = '#8b7355';
+                    ctx.fillRect(item.x - 15, item.y - 15, 30, 30);
                     ctx.fillStyle = '#fff';
-                    ctx.fillRect(item.x - 10, item.y - 15, 20, 30);
+                    ctx.font = '10px Courier New';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('📝', item.x, item.y);
                 }
                 
                 const dist = Math.hypot(player.x - item.x, player.y - item.y);
                 if (dist < 40) {
-                    ctx.fillStyle = '#ffff00';
-                    ctx.font = '14px Courier New';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('[E] Interagir', item.x, item.y - 30);
+                    ctx.strokeStyle = '#0f0';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(item.x - 20, item.y - 20, 40, 40);
                 }
             });
             
-            // Verificar arma no nível 3
-            if (game.currentLevel === 3 && level.gun) {
-                //drawPlayer(level.gun.x, level.gun.y); // Simplificado: desenhar como um jogador
-                ctx.fillStyle = '#4a4a4a';
-                ctx.fillRect(level.gun.x - 12, level.gun.y - 6, 24, 12);
-                ctx.fillStyle = '#2a2a2a';
-                ctx.fillRect(level.gun.x + 8, level.gun.y - 4, 8, 8);
-                ctx.fillStyle = '#8b4513';
-                ctx.fillRect(level.gun.x - 8, level.gun.y - 4, 8, 8);
-
-                const dist = Math.hypot(player.x - level.gun.x, player.y - level.gun.y);
-                if (dist < 40) {
-                    ctx.fillStyle = '#ffff00';
-                    ctx.font = '14px Courier New';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('[E] Pegar Pistola', level.gun.x, level.gun.y - 30);
+            // Chests
+            level.chests.forEach(chest => {
+                if (chest.locked) {
+                    ctx.fillStyle = '#8b4513';
+                    ctx.fillRect(chest.x - 20, chest.y - 15, 40, 30);
+                    ctx.fillStyle = '#d4a574';
+                    ctx.fillRect(chest.x - 8, chest.y - 5, 16, 15);
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(chest.x - 4, chest.y - 2, 8, 4);
+                } else {
+                    ctx.fillStyle = '#c41e3a';
+                    ctx.fillRect(chest.x - 20, chest.y - 15, 40, 30);
                 }
-            }
-            
-            // Verificar munição nos níveis 4, 5, 6, 7, 8
-            if (level.ammo) {
-                ctx.fillStyle = '#ffa500';
-                ctx.fillRect(level.ammo.x - 6, level.ammo.y - 10, 12, 20);
-                ctx.fillStyle = '#ff8800';
-                ctx.fillRect(level.ammo.x - 4, level.ammo.y - 12, 8, 4);
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 10px Courier New';
-                ctx.textAlign = 'center';
-                ctx.fillText('A', level.ammo.x, level.ammo.y + 3);
-                
-                const dist = Math.hypot(player.x - level.ammo.x, player.y - level.ammo.y);
-                if (dist < 40) {
-                    ctx.fillStyle = '#ffff00';
-                    ctx.font = '14px Courier New';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('[E] Pegar Munição', level.ammo.x, level.ammo.y - 30);
-                }
-            }
-
-            if (game.currentLevel === 1 && level.detector) {
-                drawDetector(level.detector.x, level.detector.y);
-                
-                const dist = Math.hypot(player.x - level.detector.x, player.y - level.detector.y);
-                if (dist < 40) {
-                    ctx.fillStyle = '#ffff00';
-                    ctx.font = '14px Courier New';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('[E] Pegar Detector', level.detector.x, level.detector.y - 35);
-                }
-            }
-            
-            if (game.deathLocation && game.deathLocation.level === game.currentLevel) {
-                drawDeathBag(game.deathLocation.x, game.deathLocation.y);
-                
-                const dist = Math.hypot(player.x - game.deathLocation.x, player.y - game.deathLocation.y);
-                if (dist < 40) {
-                    ctx.fillStyle = '#ffff00';
-                    ctx.font = '14px Courier New';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('[E] Recuperar Itens', game.deathLocation.x, game.deathLocation.y - 30);
-                    ctx.fillText(`(${game.deathLocation.items.length} itens)`, game.deathLocation.x, game.deathLocation.y - 45);
-                }
-            }
-            
-            ctx.fillStyle = '#ffff00';
-            game.bullets.forEach(bullet => {
-                ctx.beginPath();
-                ctx.arc(bullet.x, bullet.y, bullet.size, 0, Math.PI * 2);
-                ctx.fill();
             });
-            
-            if (entity.active) {
-                drawEntity(entity.x, entity.y);
-            }
             
             drawPlayer(player.x, player.y);
+            
+            for (let ent of entities) {
+                if (ent.active) {
+                    drawEntity(ent.x, ent.y);
+                }
+            }
+            
+            // Bullets
+            game.bullets.forEach(bullet => {
+                drawBullet(bullet);
+            });
             
             const staminaBarWidth = 200;
             const staminaBarHeight = 20;
@@ -2089,26 +1939,11 @@
             ctx.font = '14px Courier New';
             ctx.textAlign = 'center';
             ctx.fillText('ESTAMINA [SHIFT]', canvas.width / 2, staminaBarY - 10);
-            
-            if (game.hasGun) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(canvas.width - 150, canvas.height - 80, 130, 60);
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 16px Courier New';
-                ctx.textAlign = 'left';
-                ctx.fillText('🔫 PISTOLA', canvas.width - 140, canvas.height - 55);
-                ctx.font = '20px Courier New';
-                ctx.fillText(`Munição: ${game.ammo}`, canvas.width - 140, canvas.height - 30);
-            }
-            
-            if ((!game.flashlightOn || game.flashlightBattery <= 0) && game.currentLevel >= 3) {
-                const overlay = document.getElementById('flashlight-overlay');
-                overlay.style.background = `radial-gradient(circle at ${player.x}px ${player.y}px, transparent 0%, transparent 150px, rgba(0, 0, 0, 0.95) 300px)`;
-            }
+
+            // Update flashlight overlay position
+            updateFlashlightPosition();
         }
 
-        // ==================== GAME LOOP ====================
         function gameLoop() {
             if (game.state !== 'playing') return;
             
@@ -2117,9 +1952,10 @@
             }
 
             updatePlayer();
-            updateEntity();
+            updateEntities();
             updateBullets();
             updateFlashlightBattery();
+            // spawnEntityPeriodically(); // REMOVIDO
             render();
             
             requestAnimationFrame(gameLoop);
@@ -2128,57 +1964,39 @@
         // ==================== EVENT LISTENERS ====================
         document.getElementById('start-btn').addEventListener('click', startGame);
         
-        document.getElementById('register-btn').addEventListener('click', () => {
-            // Mostrar tela de susto
-            const scareScreen = document.getElementById('scare-screen');
-            const scareCanvas = document.getElementById('scare-canvas');
-            const scareCtx = scareCanvas.getContext('2d');
-            
-            scareScreen.style.display = 'flex';
-            
-            // Desenhar entidade assustadora grande
-            scareCtx.fillStyle = '#000';
-            scareCtx.fillRect(0, 0, 400, 400);
-            
-            // Entidade gigante e assustadora
-            const pixelSize = 4;
-            scareCtx.fillStyle = '#ffffff';
-            scareCtx.shadowBlur = 30;
-            scareCtx.shadowColor = '#ff0000';
-            
-            // Cabeça
-            scareCtx.fillRect(100, 80, 200, 160);
-            
-            // Olhos vermelhos brilhantes
-            scareCtx.fillStyle = '#ff0000';
-            scareCtx.fillRect(130, 120, 40, 60);
-            scareCtx.fillRect(230, 120, 40, 60);
-            
-            // Boca distorcida
-            scareCtx.fillStyle = '#000000';
-            scareCtx.fillRect(140, 200, 120, 30);
-            
-            // Dentes
-            scareCtx.fillStyle = '#ffffff';
-            for (let i = 0; i < 10; i++) {
-                scareCtx.fillRect(145 + i * 12, 205, 8, 20);
+        document.getElementById('settings-btn').addEventListener('click', () => {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('settings-screen').style.display = 'flex';
+        });
+
+        document.getElementById('language-select').addEventListener('change', (e) => {
+            setLanguage(e.target.value);
+        });
+
+        document.getElementById('back-to-start').addEventListener('click', () => {
+            document.getElementById('settings-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'flex';
+        });
+
+        document.getElementById('password-submit').addEventListener('click', () => {
+            const input = document.getElementById('password-input');
+            if (input.value.toUpperCase() === game.currentPassword) {
+                document.getElementById('password-screen').style.display = 'none';
+                // Animação de porta abrindo
+                showMessage("Porta aberta! Entrando no próximo setor...");
+                setTimeout(() => {
+                    nextLevel();
+                }, 1000);
+            } else {
+                document.getElementById('password-error').textContent = getTranslation('password-error-wrong');
+                input.value = '';
             }
-            
-            // Após 1 segundo, mostrar tela de cadastro
-            setTimeout(() => {
-                scareScreen.style.display = 'none';
-                document.getElementById('register-screen').style.display = 'flex';
-            }, 1000);
         });
-        
-        document.getElementById('back-to-menu').addEventListener('click', () => {
-            document.getElementById('register-screen').style.display = 'none';
-        });
-        
-        document.getElementById('register-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            showMessage("Cadastro realizado! (Simulação)");
-            document.getElementById('register-screen').style.display = 'none';
+
+        document.getElementById('password-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('password-submit').click();
+            }
         });
         
         document.getElementById('restart-btn').addEventListener('click', () => {
@@ -2201,30 +2019,65 @@
             
             game.currentStamina = game.maxStamina;
             
-            // Reposicionar entidade longe do jogador
-            entity.x = Math.random() * canvas.width;
-            entity.y = Math.random() * canvas.height;
+            // Reposicionar entidades
+            entities.forEach(ent => {
+                const pos = getRandomValidPosition(levels[game.currentLevel]);
+                ent.x = pos.x;
+                ent.y = pos.y;
+            });
             
-            // Garantir que a entidade não spawne muito perto do jogador
-            while (Math.hypot(player.x - entity.x, player.y - entity.y) < 200) {
-                entity.x = Math.random() * canvas.width;
-                entity.y = Math.random() * canvas.height;
-            }
-            
-            showMessage("Você respawnou! Volte ao local da morte para recuperar seus itens.");
+            showMessage(getTranslation('respawn-msg'));
             gameLoop();
         });
         
         document.getElementById('restart-btn-victory').addEventListener('click', () => {
             document.getElementById('victory-screen').style.display = 'none';
+            game.currentLevel = 1;
+            game.codesCollected = [];
+            game.chestsOpened = 0;
+            game.inventory = [];
+            game.flashlightBattery = 100;
+            game.hasGun = false;
+            game.ammo = 0;
+            game.spawnedPasswords = {};
             startGame();
+        });
+
+        document.getElementById('register-btn').addEventListener('click', () => {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('register-screen').style.display = 'flex';
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            
+            // Simulando envio de email (em produção, conectar a um backend)
+            console.log(`Email para ${name} (${email}): Bem-vindo! Esse é nosso jogo de trabalho de feira.`);
+            showMessage(`Email enviado para ${name}!`);
+            
+            document.getElementById('register-form').reset();
+            document.getElementById('register-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'flex';
+        });
+
+        document.getElementById('back-to-menu').addEventListener('click', () => {
+            document.getElementById('register-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'flex';
         });
 
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         });
+
+        // Inicializar idioma na tela inicial
+        updateUILanguage();
+        document.getElementById('language-select').value = currentLanguage;
         
+        // Chamar função de fantasmas ao carregar página
+        createFloatingGhosts();
     </script>
 </body>
 </html>
